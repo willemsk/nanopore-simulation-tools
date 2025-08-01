@@ -27,31 +27,31 @@ merge_bin=$(realpath ../bin/mergedx2)
 # Template files
 echo
 echo "These are the APBS template files you will use:"
-apbs_dummy_template='../templates/apbs_dummy-TEMPLATE.in'
-apbs_solv_template='../templates/apbs_solv-TEMPLATE.in'
+apbs_dummy_template='../templates_apbs/apbs_dummy-TEMPLATE.in'
+apbs_solv_template='../templates_apbs/apbs_solv-TEMPLATE.in'
 
 # Working directory
 echo
 echo "This is the working directory:"
-workdir='../output/clya-mutants'
+workdir='../output/csgg-mutants/apbs'
+
+# Input directory
+echo
+echo "This is the PQR input directory:"
+input_dir='../output/csgg-mutants/pqr'
 
 # Input files
 echo
 echo "These are the input PQR files:"
 pqrfiles=(\
-#          ../input/clya-as-mutants/clya-as_110ARG_11SER \
-#          ../input/clya-as-mutants/clya-as_110ARG_129ARG \
-#          ../input/clya-as-mutants/clya-as_110ARG_56ARG\
-#          ../input/clya-as-mutants/clya-as_110ARG_8LYS \
-          ../input/clya-as-mutants/clya-as_reference \
-#          ../input/clya-as-mutants/clya-as_110ARG_122ARG \
-#          ../input/clya-as-mutants/clya-as_110ARG_56ARG_8LYS \
-#          ../input/clya-as-mutants/clya-as_110ARG_64ARG \
-#          ../input/clya-as-mutants/clya-as_110ARG \
-          )
+    ${input_dir}/csgg_chimera_Y51R_oriented_pH7.0  \
+    ${input_dir}/csgg_modeller_Y51R_oriented_pH7.0 \
+    ${input_dir}/csgg_pymol_Y51R_oriented_pH7.0    \
+    ${input_dir}/csgg_vmd_Y51R_oriented_pH7.0      \
+    ${input_dir}/csgg_wt_oriented_pH7.0
+)
 
 set +o verbose
-
 
 # Specify settings for the membrane calculation
 echo
@@ -70,10 +70,10 @@ ioncs=(\           # values of symmetric salt concentrations [M]
 # Membrane settings
 zmem=-13.5         # lower leaflet z-position
 Lmem=27            # thickness of the membrane
-mdie=2.0           # membrane Dielectric
+mdie=2.0           # membrane dielectric
 memv=0.0           # Transmembrane potential. Doesn't work, but you need it.
-R_top=37.0         # membrane exclusion radius in case your protein is a pore
-R_bottom=18.0      # membrane exclusion radius in case your protein is a pore
+R_top=16.0         # top membrane exclusion radius
+R_bottom=14.0      # bottom membrane exclusion radius
 
 # Grid settings
 #
@@ -82,20 +82,20 @@ R_bottom=18.0      # membrane exclusion radius in case your protein is a pore
 #   417, 449, 481, 513, 545, 577, 609
 
 # gcent="mol 1"      # center of the grid is that of the molecule
-gcent="0 0 60"     # center of the grid is at these coordinates
+gcent="0 0 30"     # center of the grid is at these coordinates
 
 ## Fine simulation
-grid_l="2.0 2.0 2.0"     # Grid spacing for large grid
-grid_s="0.5 0.5 0.5"     # Grid spacing for small grid
-dime_l="417 417 449"   # Number of grid points
-dime_s="417 417 449"   # Number of grid points
+# grid_l="2.0 2.0 2.0"     # Grid spacing for large grid
+# grid_s="0.5 0.5 0.5"     # Grid spacing for small grid
+# dime_l="417 417 449"   # Number of grid points
+# dime_s="417 417 449"   # Number of grid points
 
 
 ## Coarse simulation
-# grid_l="15 15 15"     # Grid spacing for large grid
-# grid_s="5 5 5"        # Grid spacing for small grid
-# dime_l="65 65 65"   # Number of grid points
-# dime_s="65 65 65"   # Number of grid points
+grid_l="15 15 15"     # Grid spacing for large grid
+grid_s="5 5 5"        # Grid spacing for small grid
+dime_l="65 65 65"   # Number of grid points
+dime_s="65 65 65"   # Number of grid points
 
 ## Fine simulation (if you fix the grid lengths)
 # glen_l="900 900 900"   # Large grid length
@@ -109,8 +109,6 @@ set +o verbose
 
 #@create_apbs_input
 #+Create an APBS input file from a template
-#
-# 
 #
 function create_apbs_input {
 
@@ -139,8 +137,6 @@ function create_apbs_input {
 #@run_apbs
 #+Run APBS simulation
 #
-# 
-#
 function run_apbs {
   local apbs_in=$1
   local apbs_out=$2
@@ -163,8 +159,6 @@ function run_apbs {
 
 #@draw_membrane
 #+Draw membrane into coefficient maps
-#
-# 
 #
 function draw_membrane {
   local diel=$1
