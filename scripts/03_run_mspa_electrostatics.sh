@@ -33,22 +33,18 @@ apbs_solv_template='../templates_apbs/apbs_solv-TEMPLATE.in'
 # Working directory
 echo
 echo "This is the working directory:"
-workdir='../output/csgg-mutants/apbs'
+workdir='../output/mspa-mutants/apbs'
 
 # Input directory
 echo
 echo "This is the PQR input directory:"
-input_dir='../output/csgg-mutants/pqr'
+input_dir='../output/mspa-mutants/pqr'
 
 # Input files
 echo
 echo "These are the input PQR files:"
 pqrfiles=(\
-    ${input_dir}/csgg_chimera_Y51R_oriented_pH7.0  \
-    # ${input_dir}/csgg_modeller_Y51R_oriented_pH7.0 \
-    # ${input_dir}/csgg_pymol_Y51R_oriented_pH7.0    \
-    # ${input_dir}/csgg_vmd_Y51R_oriented_pH7.0      \
-    # ${input_dir}/csgg_wt_oriented_pH7.0
+    ${input_dir}/mspa_chimera_wt_pH7.0  
 )
 
 set +o verbose
@@ -68,12 +64,12 @@ ioncs=(\           # values of symmetric salt concentrations [M]
 )
 
 # Membrane settings
-zmem=-13.5         # lower leaflet z-position
-Lmem=27            # thickness of the membrane
+zmem=-18           # lower leaflet z-position
+Lmem=36            # thickness of the membrane
 mdie=2.0           # membrane dielectric
 memv=0.0           # Transmembrane potential. Doesn't work, but you need it.
-R_top=16.0         # top membrane exclusion radius
-R_bottom=14.0      # bottom membrane exclusion radius
+R_top=23.2         # top membrane exclusion radius
+R_bottom=17.5      # bottom membrane exclusion radius
 
 # Grid settings
 #
@@ -270,9 +266,9 @@ for pqrfile in ${pqrfiles[@]}; do
     echo "  Done with ${pqr} at ${ionc} M salt."
     echo
 
-    echo
-    echo "Removing unneccesary files ..."
-    cleanup ${wdpqr}
+    # echo
+    # echo "Removing unneccesary files ..."
+    # cleanup ${wdpqr}
   done
 done
 
