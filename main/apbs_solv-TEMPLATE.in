@@ -1,0 +1,92 @@
+#############################################################################
+### TM SOLVATION ENERGY
+### Please see APBS documentation (http://apbs.sourceforge.net/doc/) for
+### input file sytax.
+#############################################################################
+# READ IN MOLECULES
+read
+# Read molecule 1
+	mol pqr TM.pqr
+# Read maps
+	diel dx dielx_Lm.dx diely_Lm.dx dielz_Lm.dx
+	diel dx dielx_Sm.dx diely_Sm.dx dielz_Sm.dx
+
+	kappa dx kappa_Lm.dx
+	kappa dx kappa_Sm.dx
+
+	charge dx charge_Lm.dx
+	charge dx charge_Sm.dx
+end
+
+
+# CALCULATE POTENTIAL FOR LARGE STATE
+elec name large
+	mg-manual
+	dime DIME_L
+	grid GRID_L
+  #glen GLEN_L
+	gcent GCENT
+	mol 1
+	npbe
+	bcfl zero
+	ion
+	charge 1
+	conc IONC
+	radius IONR
+	ion
+	charge -1
+	conc IONC
+	radius IONR
+	pdie PDIE
+	sdie SDIE
+	chgm spl2
+	srfm smol
+	srad 1.4
+	swin 0.3
+	sdens 10.0
+	temp 298.15
+	calcenergy total
+	calcforce no
+	usemap diel 1
+	usemap kappa 1
+	usemap charge 1
+  write pot dx pot_Lm
+end
+
+# CALCULATE POTENTIAL FOR SMALL STATE
+elec name small
+	mg-manual
+	dime DIME_S
+  grid GRID_S
+	#glen GLEN_S
+	gcent GCENT
+	mol 1
+	npbe
+	bcfl focus
+	ion
+	charge 1
+	conc IONC
+	radius IONR
+	ion
+	charge -1
+	conc IONC
+	radius IONR
+	pdie PDIE
+	sdie SDIE
+	chgm spl2
+	srfm smol
+	srad 1.4
+	swin 0.3
+	sdens 10.0
+	temp 298.15
+#	calcenergy comps
+	calcenergy total
+	calcforce no
+	usemap diel 2
+	usemap kappa 2
+	usemap charge 2
+  write pot dx pot_Sm
+end
+
+# SO LONG
+quit

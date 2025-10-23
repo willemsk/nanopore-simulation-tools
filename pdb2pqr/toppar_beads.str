@@ -1,0 +1,205 @@
+* Toplogy and parameter information for beads model.
+*
+
+read rtf card @app
+* Topology for coarse bead model
+*
+31  1
+
+MASS  -1  B11      4000.00000 BO ! DHFR protein for total charge -11
+MASS  -1  B12      4000.00000 BO ! DHFR protein for total charge -12
+MASS  -1  B13      4000.00000 BO ! DHFR protein for total charge -13
+MASS  -1  AN3      300.00000 TA ! 3 amino acid average, -3 charge
+MASS  -1  AN2      300.00000 TA ! 3 amino acid average, -2 charge
+MASS  -1  AN1      300.00000 TA ! 3 amino acid average, -1 charge
+MASS  -1  A0       300.00000 TA ! 3 amino acid average, 0 charge
+MASS  -1  AP1      300.00000 TA ! 3 amino acid average, +1 charge
+MASS  -1  AP2      300.00000 TA ! 3 amino acid average, +2 charge
+MASS  -1  AP3      300.00000 TA ! 3 amino acid average, +3 charge
+MASS  -1  H00    64000.00000 HBS ! Haemoglobin protein, 0 charge 
+MASS  -1  H02    64000.00000 HBS ! Haemoglobin protein, -2 charge 
+MASS  -1  H04    64000.00000 HBS ! Haemoglobin protein, -4 charge 
+MASS  -1  H06    64000.00000 HBS ! Haemoglobin protein, -6 charge 
+MASS  -1  H08    64000.00000 HBS ! Haemoglobin protein, -8 charge 
+MASS  -1  H10    64000.00000 HBS ! Haemoglobin protein, -10 charge 
+
+default first none last none
+
+
+
+! Ion parameters from Benoit Roux and Coworkers
+!
+RESI DN1       1.00 ! DHFR protein for total charge -11
+GROUP
+ATOM  B11  B11   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI DN2       1.00 ! DHFR protein for total charge -12
+GROUP
+ATOM  B12  B12   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI DN3       1.00 ! DHFR protein for total charge -13
+GROUP
+ATOM  B13  B13   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI TN3       1.00 ! 3 amino acid average, -3 charge
+GROUP
+ATOM AN3  AN3  1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI TN2       1.00 ! 3 amino acid average, -2 charge
+GROUP
+ATOM AN2  AN2  1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI TN1       1.00 ! 3 amino acid average, -1 charge
+GROUP
+ATOM AN1  AN1  1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI T0        1.00 ! 3 amino acid average, 0 charge
+GROUP
+ATOM A0   A0   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI TP1       1.00 ! 3 amino acid average, +1 charge
+GROUP
+ATOM AP1  AP1  1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI TP2       1.00 ! 3 amino acid average, +2 charge
+GROUP
+ATOM AP2  AP2  1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI TP3       1.00 ! 3 amino acid average, +3 charge
+GROUP
+ATOM AP3  AP3  1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI HB0       1.00 ! Haemoglobin protein for total charge 0
+GROUP
+ATOM  H00  H00   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI HB1       1.00 ! Haemoglobin protein for total charge -2
+GROUP
+ATOM  H02  H02   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI HB2       1.00 ! Haemoglobin protein for total charge -4
+GROUP
+ATOM  H04  H04   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI HB3       1.00 ! Haemoglobin protein for total charge -6
+GROUP
+ATOM  H06  H06   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI HB4       1.00 ! Haemoglobin protein for total charge -8
+GROUP
+ATOM  H08  H08   1.00
+PATCHING FIRST NONE LAST NONE
+
+RESI HB5       1.00 ! Haemoglobin protein for total charge -10
+GROUP
+ATOM  H10  H10   1.00
+PATCHING FIRST NONE LAST NONE
+
+END
+
+read para card flex @app
+* Parameters for water and ions
+*
+
+ATOMS
+MASS  -1  B11      4000.00000 BO ! DHFR protein for total charge -11
+MASS  -1  B12      4000.00000 BO ! DHFR protein for total charge -12
+MASS  -1  B13      4000.00000 BO ! DHFR protein for total charge -13 -13
+MASS  -1  AN3      300.00000 TA ! 3 amino acid average, -3 charge
+MASS  -1  AN2      300.00000 TA ! 3 amino acid average, -2 charge
+MASS  -1  AN1      300.00000 TA ! 3 amino acid average, -1 charge
+MASS  -1  A0       300.00000 TA ! 3 amino acid average, 0 charge
+MASS  -1  AP1      300.00000 TA ! 3 amino acid average, +1 charge
+MASS  -1  AP2      300.00000 TA ! 3 amino acid average, +2 charge
+MASS  -1  AP3      300.00000 TA ! 3 amino acid average, +3 charge
+MASS  -1  H00    64000.00000 HBS ! Haemoglobin protein, 0 charge 
+MASS  -1  H02    64000.00000 HBS ! Haemoglobin protein, -2 charge 
+MASS  -1  H04    64000.00000 HBS ! Haemoglobin protein, -4 charge 
+MASS  -1  H06    64000.00000 HBS ! Haemoglobin protein, -6 charge 
+MASS  -1  H08    64000.00000 HBS ! Haemoglobin protein, -8 charge 
+MASS  -1  H10    64000.00000 HBS ! Haemoglobin protein, -10 charge 
+
+
+BONDS
+!
+!V(bond) = Kb(b - b0)**2
+!
+!Kb: kcal/mole/A**2
+!b0: A
+!
+!atom type Kb          b0
+!
+
+
+ANGLES
+!
+!V(angle) = Ktheta(Theta - Theta0)**2
+!
+!V(Urey-Bradley) = Kub(S - S0)**2
+!
+!Ktheta: kcal/mole/rad**2
+!Theta0: degrees
+!Kub: kcal/mole/A**2 (Urey-Bradley)
+!S0: A
+!
+!atom types     Ktheta    Theta0   Kub     S0
+!
+
+DIHEDRALS
+!
+!V(dihedral) = Kchi(1 + cos(n(chi) - delta))
+!
+!Kchi: kcal/mole
+!n: multiplicity
+!delta: degrees
+!
+!atom types             Kchi    n   delta
+!
+
+
+!
+IMPROPER
+!
+!V(improper) = Kpsi(psi - psi0)**2
+!
+!Kpsi: kcal/mole/rad**2
+!psi0: degrees
+!note that the second column of numbers (0) is ignored
+!
+!atom types           Kpsi                   psi0
+!
+
+NONBONDED nbxmod  5 atom cdiel fshift vatom vdistance vfswitch -
+cutnb 14.0 ctofnb 12.0 ctonnb 10.0 eps 1.0 e14fac 1.0 wmin 1.5
+
+
+!ions
+
+BO     4000.00000 BO ! DHFR protein
+TA     300.00000 TA ! 3 amino acid average, -3 charge
+
+
+
+B0       0.0       -0.0150     8.00   ! DHFR body
+TA       0.0       -0.0150     6.00   ! DHFR tail
+HBS      0.0       -0.0150    25.00   ! Haemoglobin body
+
+
+END
+
+
+return
