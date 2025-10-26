@@ -1,13 +1,13 @@
 #! /bin/bash
 ################################################################################
-# Electrostatics of MspA
+# Electrostatics of a biological nanopore with membrane
 #
 # Author: Kherim Willems
 #         Michael Grabe
 #         Nathan Baker
 #
 # This script does the following:
-#   1. Selects a MspA mutant
+#   1. Selects a nanopore mutant
 #   2. Draws the membrane around it by altering the maps from APBS
 #   3. Carry out an electrostatics computation.
 #   4. Repeat for other mutants

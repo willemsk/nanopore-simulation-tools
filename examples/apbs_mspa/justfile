@@ -1,0 +1,7 @@
+# Run the simulation
+run:
+    ./run.sh
+
+# Clean the OUTPUT directory
+clean:
+    rm -rf OUTPUT/*
