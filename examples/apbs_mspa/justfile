@@ -1,7 +1,173 @@
-# Run the simulation
-run:
-    ./run.sh
+# justfile for APBS electrostatics calculations
+# Configuration is loaded from params.env
+# Override parameters from command line: just pqrs PH_VALUES="7.0 7.4"
 
-# Clean the OUTPUT directory
+# --- Load configuration from params.env ---
+set dotenv-path := "params.env"
+set dotenv-load := true
+set dotenv-required := true
+
+# ---- Map environment variables (loaded from params.env) into justfile variables ---
+PDB_INPUT_DIR   := env("PDB_INPUT_DIR")
+OUTPUT_DIR      := env("OUTPUT_DIR")
+USERFF          := env("USERFF")
+USERNAMES       := env("USERNAMES")
+APBS_DUMMY_TEMPLATE := env("APBS_DUMMY_TEMPLATE")
+APBS_SOLV_TEMPLATE  := env("APBS_SOLV_TEMPLATE")
+PDIE            := env("PDIE")
+SDIE            := env("SDIE")
+IONR            := env("IONR")
+IONC_VALUES     := env("IONC_VALUES")
+PH_VALUES       := env("PH_VALUES")
+ZMEM            := env("ZMEM")
+LMEM            := env("LMEM")
+MDIE            := env("MDIE")
+MEMV            := env("MEMV")
+R_TOP           := env("R_TOP")
+R_BOTTOM        := env("R_BOTTOM")
+GCENT           := env("GCENT")
+GRID_L          := env("GRID_L")
+GRID_S          := env("GRID_S")
+DIME_L          := env("DIME_L")
+DIME_S          := env("DIME_S")
+VERBOSE         := env("VERBOSE")
+
+# --- Paths to executables and scripts (resolved at runtime) ---
+PDB2PQR_BIN     := `which pdb2pqr30`
+APBS_BIN        := `realpath ../../bin/apbs-intel`
+DRAW_BIN        := `realpath ../../bin/draw_membrane2`
+PDB2PQR_SCRIPT  := `realpath ../../scripts/electrostatics/run_pdb2pqr.sh`
+APBS_SCRIPT     := `realpath ../../scripts/electrostatics/run_apbs.sh`
+HELPERS_SCRIPT  := `realpath ../../scripts/electrostatics/workflow_helpers.sh`
+
+# --- Derived Paths ---
+PQR_OUTPUT_DIR  := OUTPUT_DIR / "pqr"
+APBS_OUTPUT_DIR := OUTPUT_DIR / "apbs_runs"
+
+# --- Main Recipes ---
+
+# Default recipe: run the full pipeline.
+default: all
+
+# Run the full pipeline sequentially.
+all: pqrs inputs apbs
+
+# Stage 1: Generate PQR files from PDBs. Override: just pqrs PH_VALUES="7.0 7.4"
+pqrs PH_VALUES=PH_VALUES:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    # Source helper functions
+    source '{{HELPERS_SCRIPT}}'
+    export CONFIG_FILE="params.env"
+    
+    # Dependency check: PDB files
+    if ! check_pdb_files '{{PDB_INPUT_DIR}}'; then
+        echo "Skipping PQR generation."
+        exit 0
+    fi
+    
+    # Build PDB2PQR arguments
+    pdb2pqr_args="--log-level=INFO --userff={{USERFF}} --usernames={{USERNAMES}} --whitespace"
+    verbose_flag=""
+    if [ "{{VERBOSE}}" = "true" ]; then
+        verbose_flag="-v"
+    fi
+    
+    # Process each pH value
+    for ph in {{PH_VALUES}}; do
+        echo "=== Running PDB2PQR at pH=${ph} ==="
+        '{{PDB2PQR_SCRIPT}}' -b '{{PDB2PQR_BIN}}' \
+                          -i '{{PDB_INPUT_DIR}}' \
+                          -o '{{PQR_OUTPUT_DIR}}' \
+                          -p "${ph}" \
+                          -q "${pdb2pqr_args}" \
+                          ${verbose_flag}
+    done
+    echo "=== PDB2PQR conversion complete ==="
+
+# Stage 2: Prepare APBS input files from PQR files. Override: just inputs IONC_VALUES="0.10 0.15"
+inputs IONC_VALUES=IONC_VALUES: pqrs
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    # Source helper functions
+    source '{{HELPERS_SCRIPT}}'
+    export CONFIG_FILE="params.env"
+    
+    # Dependency check: PQR files
+    if ! check_pqr_files '{{PQR_OUTPUT_DIR}}'; then
+        echo "Run 'just pqrs' first. Skipping input preparation."
+        exit 0
+    fi
+    
+    # Validate templates
+    validate_templates '{{APBS_DUMMY_TEMPLATE}}' '{{APBS_SOLV_TEMPLATE}}' || true
+    
+    # Get list of PQR files
+    pqr_files=( $(find '{{PQR_OUTPUT_DIR}}' -type f -name "*.pqr" 2>/dev/null) )
+    
+    # Process each PQR file × ion concentration combination
+    echo "=== Preparing ABPS input files ==="
+    for pqrfile in "${pqr_files[@]}"; do
+        pqr=$(basename "$pqrfile" .pqr)
+        for ionc in {{IONC_VALUES}}; do
+            printf "  Preparing input for ${pqr} at ${ionc} M salt ... "
+            outdir="{{APBS_OUTPUT_DIR}}/${pqr}_${ionc}M"
+            mkdir -p "${outdir}"
+            
+            create_apbs_input '{{APBS_DUMMY_TEMPLATE}}' "${outdir}/apbs_dummy.in" ${ionc}
+            create_draw_input "${outdir}/draw_membrane.in" ${ionc}
+            create_apbs_input '{{APBS_SOLV_TEMPLATE}}' "${outdir}/apbs_solv.in" ${ionc}
+            
+            cp "${pqrfile}" "${outdir}/TM.pqr"
+            printf "done.\n"
+        done
+    done
+    echo "=== Input preparation complete ==="
+
+# Stage 3: Run APBS calculations.
+apbs: inputs
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    # Source helper functions
+    source '{{HELPERS_SCRIPT}}'
+    export CONFIG_FILE="params.env"
+    
+    # Dependency check: APBS run directories
+    if ! check_apbs_dirs '{{APBS_OUTPUT_DIR}}'; then
+        echo "Run 'just inputs' first. Skipping APBS calculations."
+        exit 0
+    fi
+    
+    # Build verbose flag
+    verbose_flag=""
+    if [ "{{VERBOSE}}" = "true" ]; then
+        verbose_flag="-v"
+    fi
+    
+    echo "=== Running APBS calculations ==="
+    '{{APBS_SCRIPT}}' -b '{{APBS_BIN}}' -m '{{DRAW_BIN}}' -d '{{APBS_OUTPUT_DIR}}' ${verbose_flag}
+    echo "=== APBS calculations complete ==="
+
+
+# --- Cleaning Recipes ---
+
+# Clean all generated outputs
 clean:
-    rm -rf OUTPUT/*
+    @echo "Cleaning all output files..."
+    @rm -rf '{{OUTPUT_DIR}}'
+
+# Clean only PQR files
+clean-pqrs:
+    @echo "Cleaning PQR files..."
+    @rm -rf '{{PQR_OUTPUT_DIR}}'
+
+# Clean only APBS run directories
+clean-inputs:
+    @echo "Cleaning APBS run directories..."
+    @rm -rf '{{APBS_OUTPUT_DIR}}'
+
+# Alias for clean-inputs
+clean-apbs: clean-inputs
