@@ -1,6 +1,17 @@
 # justfile for APBS electrostatics calculations
 # Configuration is loaded from params.env
 # Override parameters from command line: just pqrs PH_VALUES="7.0 7.4"
+#
+# Main recipes:
+#   just all       - Run complete workflow (pqrs → inputs → apbs)
+#   just pqrs      - Generate PQR files from PDB structures
+#   just inputs    - Prepare APBS run directories
+#   just apbs      - Execute APBS calculations
+#   just validate  - Check output completeness and correctness
+#   just resume    - Re-run incomplete or failed calculations
+#   just clean     - Remove all generated outputs
+#
+# See README.md for detailed usage instructions
 
 # --- Load configuration from params.env ---
 set dotenv-path := "params.env"
@@ -39,18 +50,118 @@ DRAW_BIN        := `realpath ../../bin/draw_membrane2`
 PDB2PQR_SCRIPT  := `realpath ../../scripts/electrostatics/run_pdb2pqr.sh`
 APBS_SCRIPT     := `realpath ../../scripts/electrostatics/run_apbs.sh`
 HELPERS_SCRIPT  := `realpath ../../scripts/electrostatics/workflow_helpers.sh`
+VALIDATE_SCRIPT := `realpath ../../scripts/electrostatics/validate_output.sh`
 
-# --- Derived Paths ---
+# --- Derived paths ---
 PQR_OUTPUT_DIR  := OUTPUT_DIR / "pqr"
 APBS_OUTPUT_DIR := OUTPUT_DIR / "apbs_runs"
 
-# --- Main Recipes ---
+# --- Main recipes ---
 
 # Default recipe: run the full pipeline.
 default: all
 
 # Run the full pipeline sequentially.
 all: pqrs inputs apbs
+
+# Validate output completeness and correctness
+validate:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    # Check if validate script exists and is executable
+    if [ ! -x '{{VALIDATE_SCRIPT}}' ]; then
+        chmod +x '{{VALIDATE_SCRIPT}}'
+    fi
+    
+    # Build verbose flag
+    verbose_flag=""
+    if [ "{{VERBOSE}}" = "true" ]; then
+        verbose_flag="-v"
+    fi
+    
+    echo "=== Validating APBS outputs ==="
+    '{{VALIDATE_SCRIPT}}' -o '{{OUTPUT_DIR}}' ${verbose_flag}
+
+# # Resume incomplete or failed APBS calculations
+# resume:
+#     #!/usr/bin/env bash
+#     set -euo pipefail
+    
+#     # Source helper functions
+#     source '{{HELPERS_SCRIPT}}'
+#     export CONFIG_FILE="params.env"
+    
+#     # Check if APBS output directory exists
+#     if [ ! -d '{{APBS_OUTPUT_DIR}}' ]; then
+#         echo "Error: No APBS output directory found at {{APBS_OUTPUT_DIR}}" >&2
+#         echo "Run 'just inputs' and 'just apbs' first." >&2
+#         exit 1
+#     fi
+    
+#     echo "=== Checking for incomplete APBS calculations ==="
+    
+#     # Find all run directories
+#     run_dirs=( $(find '{{APBS_OUTPUT_DIR}}' -mindepth 1 -maxdepth 1 -type d | sort) )
+#     n_total=${#run_dirs[@]}
+    
+#     if [ ${n_total} -eq 0 ]; then
+#         echo "No APBS run directories found."
+#         exit 0
+#     fi
+    
+#     # Identify incomplete directories (missing pot_Lm.dx or pot_Sm.dx)
+#     incomplete_dirs=()
+#     for dir in "${run_dirs[@]}"; do
+#         if [ ! -f "${dir}/pot_Lm.dx" ] || [ ! -f "${dir}/pot_Sm.dx" ]; then
+#             incomplete_dirs+=("${dir}")
+#         fi
+#     done
+    
+#     n_incomplete=${#incomplete_dirs[@]}
+    
+#     if [ ${n_incomplete} -eq 0 ]; then
+#         echo "All ${n_total} directories appear complete."
+#         echo "Run 'just validate' for detailed validation."
+#         exit 0
+#     fi
+    
+#     echo "Found ${n_incomplete} incomplete directories (out of ${n_total} total)."
+#     echo ""
+    
+#     # Re-run APBS for incomplete directories
+#     verbose_flag=""
+#     if [ "{{VERBOSE}}" = "true" ]; then
+#         verbose_flag="-v"
+#     fi
+    
+#     for dir in "${incomplete_dirs[@]}"; do
+#         dir_name=$(basename "${dir}")
+#         echo "Re-running APBS for: ${dir_name}"
+        
+#         # Re-execute APBS workflow for this directory
+#         # This requires running the same steps as in the apbs recipe
+#         apbs_dummy_in="${dir}/apbs_dummy.in"
+#         apbs_solv_in="${dir}/apbs_solv.in"
+        
+#         if [ ! -f "${apbs_dummy_in}" ] || [ ! -f "${apbs_solv_in}" ]; then
+#             echo "  Skipping ${dir_name}: Missing input files. Run 'just inputs' first."
+#             continue
+#         fi
+        
+#         # Run using the same function pattern as run_apbs.sh
+#         # For simplicity, call the full script on just this directory pattern
+#         # This is a bit inefficient but ensures consistency
+#         dir_pattern="${dir%/}"
+#         '{{APBS_SCRIPT}}' -b '{{APBS_BIN}}' -m '{{DRAW_BIN}}' -d "${dir_pattern}" ${verbose_flag} || {
+#             echo "  Warning: APBS execution failed for ${dir_name}"
+#             echo "  Check ${dir}/apbs_*.out for error details"
+#         }
+#     done
+    
+#     echo ""
+#     echo "=== Resume complete ==="
+#     echo "Run 'just validate' to check results."
 
 # Stage 1: Generate PQR files from PDBs. Override: just pqrs PH_VALUES="7.0 7.4"
 pqrs PH_VALUES=PH_VALUES:
@@ -87,7 +198,7 @@ pqrs PH_VALUES=PH_VALUES:
     echo "=== PDB2PQR conversion complete ==="
 
 # Stage 2: Prepare APBS input files from PQR files. Override: just inputs IONC_VALUES="0.10 0.15"
-inputs IONC_VALUES=IONC_VALUES: pqrs
+inputs IONC_VALUES=IONC_VALUES:
     #!/usr/bin/env bash
     set -euo pipefail
     
@@ -127,13 +238,12 @@ inputs IONC_VALUES=IONC_VALUES: pqrs
     echo "=== Input preparation complete ==="
 
 # Stage 3: Run APBS calculations.
-apbs: inputs
+apbs:
     #!/usr/bin/env bash
     set -euo pipefail
     
     # Source helper functions
     source '{{HELPERS_SCRIPT}}'
-    export CONFIG_FILE="params.env"
     
     # Dependency check: APBS run directories
     if ! check_apbs_dirs '{{APBS_OUTPUT_DIR}}'; then
@@ -152,7 +262,7 @@ apbs: inputs
     echo "=== APBS calculations complete ==="
 
 
-# --- Cleaning Recipes ---
+# --- Cleaning recipes ---
 
 # Clean all generated outputs
 clean:

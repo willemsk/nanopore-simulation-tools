@@ -1,0 +1,11 @@
+name: nanopore-sim
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.9
+  - pip
+  - numpy
+  - pip:
+    - pdb2pqr
+    - apbs-bin

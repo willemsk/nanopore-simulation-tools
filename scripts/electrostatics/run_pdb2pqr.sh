@@ -88,11 +88,11 @@ elif [ ${clean} == "true" ]; then
 fi
 
 # Run PDB2PQR for each PDB file
-# i=0
+i=0
+n_files=${#pdbfiles[@]}
 
-
-printf_verbose "Performing %s PDB2PQR runs at pH=%s.\n" ${n} ${ph}
-# printf_verbose "  %g of %g completed (%.1f%%)" 0 ${n} 0.0
+printf_verbose "Performing %s PDB2PQR runs at pH=%s.\n" ${n_files} ${ph}
+printf_verbose "  Progress: 0 of %s completed (0.0%%)\n" ${n_files}
 
 for pdbfile in ${pdbfiles[@]}; do
   # Define filenames
@@ -105,9 +105,13 @@ for pdbfile in ${pdbfiles[@]}; do
   ${pdb2pqr_bin} ${pdb2pqr_args} ${pdbfile} ${pqr_out} > ${log} 2>&1
   printf_verbose "done → %s\n" ${pqr_out}
 
-  # i=$(( i+1 ))
-  # p=$((i*100/n))
-  # printf_verbose "\r %g of %g completed (%.1f%%)" ${i} ${n} ${p}
+  i=$((i + 1))
+  p=$(awk "BEGIN {printf \"%.1f\", ${i}*100.0/${n_files}}")
+  printf_verbose "  Progress: %s of %s completed (%s%%)\n" ${i} ${n_files} ${p}
 done
+
+# Print completion summary
+echo "PDB2PQR complete: Generated ${n_files} PQR files at pH ${ph}"
+echo "Output directory: ${pqr_output_dir}"
 
 exit 0

@@ -8,7 +8,7 @@
 # Run APBS computations in the folders matching DIRSTRING.
 #
 # @author Kherim Willems
-# @date 21 August 2018
+# @date 31 October 2025
 ########################################################################################
 
 set -e
@@ -43,13 +43,17 @@ done
 
 # Check input validity
 if [ ! -x "${apbs_bin}" ]; then
-  printf "Could not find APBS binary at: %s. Please install APBS.\n" "${apbs_bin}"
+  printf "Error: Could not find APBS binary at: %s\n" "${apbs_bin}" >&2
+  printf "\nPlease install APBS or update APBS_BIN path in justfile.\n" >&2
+  printf "See README.md for installation instructions.\n" >&2
   print_usage
   exit 1
 fi
 
 if [ ! -x "${draw_bin}" ]; then
-  printf "Could not find draw_membrane2 binary at: %s\n." "${draw_bin}"
+  printf "Error: Could not find draw_membrane2 binary at: %s\n" "${draw_bin}" >&2
+  printf "\nPlease compile draw_membrane2 or check path in justfile.\n" >&2
+  printf "See bin/README.md for compilation instructions.\n" >&2
   print_usage
   exit 1
 fi
@@ -61,50 +65,35 @@ if [ -z "${dirstring}" ]; then
 fi
 
 # Select which directories to run
-apbs_directories=($(ls ${dirstring}*/))
-# Check for if their are no directories to run
-if [ ! $? -eq 0 ]; then
-  printf "  No APBS directories found using this DIRSTRING: %s\n" ${dirstring}
+apbs_directories=($(ls -d ${dirstring}*/* 2>/dev/null))
+# Check for if there are no directories to run
+if [ ${#apbs_directories[@]} -eq 0 ]; then
+  printf "Error: No APBS run directories found matching: %s*/\n" "${dirstring}" >&2
+  printf "\nHave you run 'just inputs' to prepare APBS input files?\n" >&2
+  printf "Check that OUTPUT_DIR in params.env matches this path.\n" >&2
   exit 1
 fi
 
-# Check all directories contain apbs_dummy.in file
+# Check all directories contain required input files
 for dir in ${apbs_directories[@]}; do
-  infile="${dirstring}/${dir}/apbs_dummy.in"
-  if [ ! -f ${infile} ]; then
-    printf "  No `apbs_dummy.in` input file found in directory: %s\n" "${dirstring}/${dir}"
-    exit 1
-  fi
+  for required_file in "apbs_dummy.in" "apbs_solv.in" "draw_membrane.in"; do
+    infile="${dir}/${required_file}"
+    if [ ! -f "${infile}" ]; then
+      printf "Error: Missing required file '%s' in directory: %s\n" "${required_file}" "${dir}" >&2
+      printf "\nRun 'just inputs' to generate APBS input files.\n" >&2
+      exit 1
+    fi
+  done
 done
-
-# Check all directories contain apbs_solv.in file
-for dir in ${apbs_directories[@]}; do
-  infile="${dirstring}/${dir}/apbs_solv.in"
-  if [ ! -f ${infile} ]; then
-    printf "  No `apbs_solv.in` input file found in directory: %s\n" "${dirstring}/${dir}"
-    exit 1
-  fi
-done
-
-# Check all directories contain draw_membrane.in file
-for dir in ${apbs_directories[@]}; do
-  infile="${dirstring}/${dir}/draw_membrane.in"
-  if [ ! -f ${infile} ]; then
-    printf "  No `draw_membrane.in` input file found in directory: %s\n" "${dirstring}/${dir}"
-    exit 1
-  fi
-done
-
-
 
 # APBS execution wrapper
 function run_apbs {
   local apbs_in=$1
   local apbs_out=$2
-  local wd=$(dirname "$(realpath "$apbs_in")")
+  local wd=$(realpath $(dirname $apbs_in))
   local cwd=$(pwd)
-  local apbs_out_abs="$(realpath -m "$apbs_out")"
-  mkdir -p "$(dirname "$apbs_out_abs")"
+  local apbs_out_abs=$(realpath -m $apbs_out)
+  mkdir -p $(dirname $apbs_out_abs)
   (
     SECONDS=0
     cd "$wd"
@@ -141,27 +130,39 @@ done
 
 for dir in ${apbs_directories[@]}; do
 
-  outdir="${dirstring}/${dir}"
-  printf_verbose "  Running APBS in directory: %s\n" "${outdir}"
+  printf_verbose "  Running APBS in directory: %s\n" "${dir}"
 
   # Define APBS input files
-  apbs_dummy_in="${dirstring}/${dir}/apbs_dummy.in"
-  apbs_solv_in="${dirstring}/${dir}/apbs_solv.in"
+  apbs_dummy_in="${dir}/apbs_dummy.in"
+  apbs_solv_in="${dir}/apbs_solv.in"
 
   printf_verbose "    Generating coefficient maps with dummy run. "
   run_apbs $apbs_dummy_in "${apbs_dummy_in}.out"
 
   printf_verbose "    Adding membrane to coarse grid. "
-  dielL="${outdir}/dielx_L.dx"
+  dielL="${dir}/dielx_L.dx"
   draw_membrane $dielL
 
   printf_verbose "    Adding membrane to fine grid. "
-  dielS="${outdir}/dielx_S.dx"
+  dielS="${dir}/dielx_S.dx"
   draw_membrane $dielS
 
   printf_verbose "    Executing electrostatic calculation. "
   run_apbs $apbs_solv_in "${apbs_solv_in}.out"
 
 done
+
+# Print completion summary
+echo ""
+echo "======================================================================"
+echo "APBS execution complete"
+echo "======================================================================"
+echo "Processed ${n} run directories"
+echo "Output location: ${dirstring}"
+echo ""
+echo "Next steps:"
+echo "  - Validate results: just validate"
+echo "  - View outputs: see EXPECTED_OUTPUT.md for file descriptions"
+echo "  - Visualize: see VISUALIZATION.md for visualization instructions"
 
 exit 0

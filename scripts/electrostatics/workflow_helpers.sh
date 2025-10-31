@@ -2,63 +2,16 @@
 ################################################################################
 # workflow_helpers.sh — Helper functions for APBS electrostatics workflow
 ################################################################################
-# Provides configuration parsing, validation, and template generation utilities.
+# Provides template generation and validation utilities.
 # Designed to be sourced by justfile recipes and standalone scripts.
 #
 # Usage:
 #   source workflow_helpers.sh
-#   CONFIG_FILE="path/to/params.conf"
-#   value=$(get_config_value "KEY")
 #   create_apbs_input template.in output.in ionc
+#   ...
 ################################################################################
 
 set -e
-
-################################################################################
-# Configuration parsing
-################################################################################
-
-# Get a configuration value from params.env
-# Usage: get_config_value "KEY_NAME" [config_file]
-# Returns: The value associated with the key, or empty string if not found
-get_config_value() {
-  local key=$1
-  local config=${2:-${CONFIG_FILE:-params.env}}
-  
-  if [ ! -f "$config" ]; then
-    echo "Error: Configuration file '$config' not found" >&2
-    return 1
-  fi
-  
-  # Match lines starting with KEY= (ignoring leading whitespace and comments)
-  grep "^[[:space:]]*${key}=" "$config" | head -1 | cut -d'=' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
-}
-
-# Load all configuration values into shell variables
-# Usage: load_config [config_file]
-# Note: This exports variables for use in current shell and subprocesses
-load_config() {
-  local config=${1:-${CONFIG_FILE:-params.env}}
-  
-  if [ ! -f "$config" ]; then
-    echo "Error: Configuration file '$config' not found" >&2
-    return 1
-  fi
-  
-  # Export all non-comment, non-empty lines as environment variables
-  while IFS='=' read -r key value; do
-    # Skip comments and empty lines
-    [[ "$key" =~ ^[[:space:]]*# ]] && continue
-    [[ -z "$key" ]] && continue
-    
-    # Remove leading/trailing whitespace from key and value
-    key=$(echo "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    value=$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    
-    # Export the variable
-    export "$key=$value"
-  done < <(grep -v "^[[:space:]]*$" "$config")
-}
 
 ################################################################################
 # Template generation functions
@@ -104,6 +57,44 @@ create_draw_input() {
 ################################################################################
 # Validation functions
 ################################################################################
+
+# Validate APBS grid dimensions follow multigrid formula
+# Usage: validate_grid_dimensions dime_x dime_y dime_z
+# Formula: dime = c * 2^(nlev+1) + 1 where c and nlev are positive integers
+# Returns: 0 if all dimensions valid, 1 if any invalid
+validate_grid_dimensions() {
+  local dx=$1
+  local dy=$2
+  local dz=$3
+  local valid=0
+  
+  # Check each dimension
+  for dim in $dx $dy $dz; do
+    local is_valid=0
+    
+    # Try common nlev values (typically nlev=4, but check 1-6)
+    for nlev in {1..6}; do
+      # For each nlev, try c values from 1 to 20
+      for c in {1..20}; do
+        local expected=$(( c * 2**(nlev + 1) + 1 ))
+        if [ "$dim" -eq "$expected" ]; then
+          is_valid=1
+          break 2
+        fi
+        # Stop if we've exceeded the dimension
+        [ "$expected" -gt "$dim" ] && break
+      done
+    done
+    
+    if [ "$is_valid" -eq 0 ]; then
+      echo "Warning: Grid dimension $dim does not satisfy formula dime = c*2^(nlev+1) + 1" >&2
+      echo "  Valid dimensions include: 33, 65, 97, 129, 161, 193, 225, 257, 289, 321, 353, 385, 417, 449, 481, 513..." >&2
+      valid=1
+    fi
+  done
+  
+  return $valid
+}
 
 # Validate that template files exist and contain required placeholders
 # Usage: validate_templates template_file [template_file2 ...]
