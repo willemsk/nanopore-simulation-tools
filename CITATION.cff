@@ -59,7 +59,7 @@ references:
     authors:
       - name: "APBS Development Team"
     repository-code: "https://github.com/Electrostatics/apbs"
-    url: "https://www.poissonboltzmann.org/"
+    url: "https://apbs.readthedocs.io/en/latest/supporting.html#citing-our-software"
   - type: software
     title: "PDB2PQR"
     authors:

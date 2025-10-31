@@ -1,5 +1,12 @@
 # Nanopore simulation tools - AI agent instructions
 
+## Style guidelines
+
+- Use clear, concise language suitable for computational biophysics researchers.
+- Maintain a professional and technical tone.
+- Use markdown formatting for headings, lists, and code blocks.
+- Do not use title case for headings; use sentence case instead.
+
 ## Project overview
 
 This is a computational biophysics toolkit for running APBS (Adaptive Poisson-Boltzmann Solver) electrostatics calculations on nanopore membrane proteins. The current focus is electrostatics, with planned expansion to mutagenesis, particle translocation energy landscapes, and pore diameter calculations.

@@ -11,18 +11,18 @@ Automated workflow tools for running electrostatic calculations on biological na
 
 ## Quick start
 
+Assuming an Ubuntu system with `git` and `bash` installed, follow these steps
+to set up and run the example workflow:
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/willemsk/nanopore-simulation-tools.git
 cd nanopore-simulation-tools
 
-# 2. Set up conda environment
-conda env create -f environment.yml
-conda activate nanopore-sim
+# 2. Install dependencies
+sudo apt-get install just pdb2pqr apbs
 
-# 3. Install APBS and just (see Installation section below)
-
-# 4. Run example workflow
+# 3. Run example workflow
 cd examples/apbs_mspa
 just all
 ```
@@ -35,45 +35,11 @@ This will generate protonated structures (`.pqr` files) and electrostatic potent
 
 This toolkit requires three main dependencies:
 
-1. **Python environment (conda recommended)**
-   ```bash
-   conda env create -f environment.yml
-   conda activate nanopore-sim
-   ```
-   This installs Python ≥3.8, PDB2PQR, and NumPy.
-
-2. **APBS (Adaptive Poisson-Boltzmann Solver)**
-   
-   Build from source for best compatibility:
-   ```bash
-   # Install dependencies (Ubuntu/Debian)
-   sudo apt-get install cmake build-essential gfortran
-   
-   # Clone and build APBS
-   git clone https://github.com/Electrostatics/apbs.git
-   cd apbs
-   mkdir build && cd build
-   cmake -DENABLE_OPENMP=ON ..
-   make -j4
-   sudo make install
-   ```
-   
-   **Alternative:** Pre-compiled Intel binaries are provided in `bin/` as a convenience option (see `bin/README.md`).
-
-3. **just (command runner)**
-   ```bash
-   # macOS
-   brew install just
-   
-   # Linux (cargo)
-   cargo install just
-   
-   # Or download binary from https://github.com/casey/just/releases
-   ```
-
-4. **draw_membrane2 utility** (for membrane modeling)
-   
-   Compile from APBS examples:
+1. **`just` (command runner):** see [installation guide](https://github.com/casey/just?tab=readme-ov-file#installation)
+3. **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
+4. **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries)
+5. **`draw_membrane2` (membrane drawing utility):** see [`helix` example](https://github.com/Electrostatics/apbs/tree/main/examples/helix)
+   It should already be in the `bin/` directory, but can also be compiled from source:
    ```bash
    cd bin/
    # If not already compiled, get source from APBS examples
@@ -86,9 +52,9 @@ This toolkit requires three main dependencies:
 After installation, verify dependencies:
 
 ```bash
-pdb2pqr30 --version    # Should show PDB2PQR version
-apbs --version          # Should show APBS version
 just --version          # Should show just version
+pdb2pqr30 --version     # Should show PDB2PQR version
+apbs --version          # Should show APBS version
 ./bin/draw_membrane2    # Should show usage message
 ```
 
@@ -127,11 +93,6 @@ just inputs IONC_VALUES="0.10 0.20"    # Custom ion concentrations
 Check that outputs are complete and correct:
 ```bash
 just validate          # Verify all expected files exist and calculations succeeded
-```
-
-Resume incomplete calculations:
-```bash
-just resume            # Re-run only missing or failed calculations
 ```
 
 ### Output structure
@@ -196,7 +157,7 @@ nanopore-simulation-tools/
 - Verify grid center `GCENT` encompasses your protein
 
 **Invalid grid dimensions**
-- APBS requires: `dime = 2 × c^(nlev+1) + 1` for some integers c and nlev
+- APBS requires: `dime = c × 2^(nlev+1) + 1` for some integers `c` and `nlev` (see [`dime` documentation](https://apbs.readthedocs.io/en/latest/using/input/old/elec/dime.html?highlight=dime#dime))
 - Use provided values in `params.env` or calculate new ones following this formula
 - `just validate` checks this automatically before running
 
@@ -214,26 +175,27 @@ nanopore-simulation-tools/
 
 For additional assistance:
 1. Check detailed workflow documentation in `examples/apbs_mspa/README.md`
-2. Review APBS documentation: https://www.poissonboltzmann.org/
-3. Review PDB2PQR documentation: https://pdb2pqr.readthedocs.io/
-4. Open an issue on GitHub: https://github.com/willemsk/nanopore-simulation-tools/issues
+2. Review [APBS documentation](https://apbs.readthedocs.io/)
+3. Review [PDB2PQR documentation](https://pdb2pqr.readthedocs.io/)
+4. Open an [issue on GitHub](https://github.com/willemsk/nanopore-simulation-tools/issues)
 
 ## Citation
 
-If you use this toolkit in your research, please cite:
+If you use this toolkit in your research, please cite (see `CITATION.cff` for complete references):
 
 ```bibtex
 @software{nanopore_simulation_tools,
-  author = {Willems, Kherim},
-  title = {Nanopore Simulation Tools},
+  author = {Reccia, Marco and Quilli, Francesco and Willems, Kherim and Morozzo della Rocca, Blasco and Raimondo, Domenico and Chinappi, Mauro},
+  title = {Bioinformatic and computational biophysics tools for nanopore engineering: a review from standard approaches to machine learning advancements},
   year = {2025},
+  journal = {Journal of Nanobiotechnology},
   url = {https://github.com/willemsk/nanopore-simulation-tools}
 }
 ```
 
-And cite the underlying tools (see `CITATION.cff` for complete references):
-- **APBS**: https://www.poissonboltzmann.org/
-- **PDB2PQR**: https://pdb2pqr.readthedocs.io/
+And cite the underlying tools:
+- **APBS**: see [citing APBS](https://apbs.readthedocs.io/en/latest/supporting.html#citing-our-software)
+- **PDB2PQR**: see [citing PDB2PQR](https://pdb2pqr.readthedocs.io/en/latest/supporting.html#citing-our-software)
 
 ## License
 
@@ -249,4 +211,7 @@ We welcome contributions! See `CONTRIBUTING.md` for guidelines on:
 
 ## Acknowledgments
 
-This toolkit was developed to support computational biophysics research on biological nanopores. It integrates and automates workflows using APBS, PDB2PQR, and the draw_membrane2 utility from the APBS examples.
+This toolkit was developed to support computational biophysics research on
+biological nanopores. It integrates and automates workflows using `APBS`,
+`PDB2PQR`, and the `draw_membrane2` utility from the `APBS` examples. It is a
+work in progress, so any feedback is appreciated!
