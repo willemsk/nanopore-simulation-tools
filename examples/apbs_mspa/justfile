@@ -45,7 +45,7 @@ VERBOSE         := env("VERBOSE")
 
 # --- Paths to executables and scripts (resolved at runtime) ---
 PDB2PQR_BIN     := `which pdb2pqr30`
-APBS_BIN        := `realpath ../../bin/apbs-intel`
+APBS_BIN        := `which apbs`
 DRAW_BIN        := `realpath ../../bin/draw_membrane2`
 PDB2PQR_SCRIPT  := `realpath ../../scripts/electrostatics/run_pdb2pqr.sh`
 APBS_SCRIPT     := `realpath ../../scripts/electrostatics/run_apbs.sh`

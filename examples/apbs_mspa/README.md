@@ -356,7 +356,7 @@ Check expected output structure in the "Output validation and file structure" se
 
 See the main [README.md troubleshooting section](../../README.md#troubleshooting) for common issues and solutions.
 
-**MSpA-specific issues:**
+**MspA-specific issues:**
 
 **Membrane parameters not appropriate:**
 - Adjust `ZMEM`, `LMEM`, `R_TOP`, `R_BOTTOM` in `params.env`

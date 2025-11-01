@@ -1,13 +1,15 @@
-# Nanopore Simulation Tools
+# Nanopore simulation sools
 
-Automated workflow tools for running electrostatic calculations on biological nanopore membrane proteins using APBS (Adaptive Poisson-Boltzmann Solver). This toolkit demonstrates reproducible computational workflows for nanopore biophysics research.
+Automated workflow tools for running electrostatic calculations on biological
+nanopore membrane proteins using
+[PDB2PQR](https://github.com/Electrostatics/pdb2pqr) and
+[APBS](https://github.com/Electrostatics/apbs). This toolkit is a work in
+progress and aims to provide examples of reproducible computational workflows to
+aid in nanopore biophysics research.
 
-**Key Features:**
+**Key features:**
 - Automated three-stage pipeline: PDB → PDB2PQR → APBS (with membrane modeling)
 - Parameter sweep capabilities (pH, ionic strength, grid resolutions)
-- Template-based configuration system
-- Custom CHARMM force fields for specialized residues
-- Built-in validation and error recovery
 
 ## Quick start
 
@@ -27,25 +29,23 @@ cd examples/apbs_mspa
 just all
 ```
 
-This will generate protonated structures (`.pqr` files) and electrostatic potential maps (`.dx` files) for the MSpA nanopore at multiple pH values and ionic strengths.
+This will generate protonated structures (`.pqr` files) and electrostatic potential maps (`.dx` files) for the MspA nanopore at multiple pH values and ionic strengths.
 
 ## Installation
 
 ### Prerequisites
 
-This toolkit requires three main dependencies:
+This toolkit requires these main dependencies:
 
-1. **`just` (command runner):** see [installation guide](https://github.com/casey/just?tab=readme-ov-file#installation)
-2. **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
-3. **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries) or [build from source](https://apbs.readthedocs.io/en/latest/getting/source.html)
-4. **`draw_membrane2` (membrane drawing utility):** Pre-compiled binary included in `bin/`, or compile from [APBS examples](https://github.com/Electrostatics/apbs/tree/main/examples/helix):
+- **`just` (command runner):** see [installation guide](https://github.com/casey/just?tab=readme-ov-file#installation)
+- **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
+- **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries) or [build from source](https://apbs.readthedocs.io/en/latest/getting/source.html)
+- **`draw_membrane2` (membrane drawing utility):** Pre-compiled binary included in `bin/`, or compile from [APBS examples](https://github.com/Electrostatics/apbs/tree/main/examples/helix):
    ```bash
    cd bin/
    wget https://raw.githubusercontent.com/Electrostatics/apbs/main/examples/helix/draw_membrane2.c
    gcc -O3 -o draw_membrane2 draw_membrane2.c -lm
    ```
-
-**Note on pre-compiled binaries:** The `bin/` directory contains convenience binaries (`apbs-intel`, `draw_membrane2`) for x86_64 systems. These may not work on ARM-based systems (Apple M1/M2, ARM servers). For best compatibility, [build APBS from source](https://apbs.readthedocs.io/en/latest/getting/source.html).
 
 ### Verification
 
@@ -126,21 +126,20 @@ just clean             # Remove all generated outputs
 
 ```
 nanopore-simulation-tools/
-├── bin/                      # Pre-compiled binaries (convenience)
-│   ├── apbs-intel           # Intel-compiled APBS for x86_64
-│   └── draw_membrane2       # Membrane modeling utility
+├── bin/                         # Pre-compiled binaries (convenience)
+│   └── draw_membrane2           # Membrane modeling utility
 ├── scripts/
-│   └── electrostatics/      # Electrostatics workflow automation
-│       ├── workflow_helpers.sh   # Shared helper functions
+│   └── electrostatics/          # Electrostatics workflow automation
+│       ├── workflow_helpers.sh  # Shared helper functions
 │       ├── run_pdb2pqr.sh       # PQR generation script
 │       ├── run_apbs.sh          # APBS orchestration script
 │       └── validate_output.sh   # Output validation script
 └── examples/
-    └── apbs_mspa/           # MSpA electrostatics workflow
-        ├── justfile         # Workflow orchestration recipes
-        ├── params.env       # Configuration parameters
-        ├── apbs_templates/  # APBS input templates
-        ├── pdb/             # Input PDB structures
+    └── apbs_mspa/               # MspA electrostatics workflow
+        ├── justfile             # Workflow orchestration recipes
+        ├── params.env           # Configuration parameters
+        ├── apbs_templates/      # APBS input templates
+        ├── pdb/                 # Input PDB structures
         └── pdb2pqr_forcefield/  # Custom CHARMM force fields
 ```
 
@@ -150,12 +149,15 @@ Scripts in `scripts/electrostatics/` automate the three-stage pipeline and are t
 
 ```bash
 cd examples/apbs_mspa/
-just pqrs     # Calls scripts/electrostatics/run_pdb2pqr.sh
-just apbs     # Calls scripts/electrostatics/run_apbs.sh
-just validate # Calls scripts/electrostatics/validate_output.sh
+just pqrs     # Creates .pqr files from input PDBs target pH  value(s)
+just inputs   # Prepares APBS input directories
+just apbs     # Executes all APBS calculations
+just validate # Validates output completeness of APBS runs
 ```
 
-Scripts can also be called directly with command-line arguments. See individual script help (`-h` flag) for usage information. All scripts source configuration from `params.env` files in example directories.
+Scripts can in principe also be called directly with command-line arguments. See
+individual script help (`-h` flag) for usage information. All scripts source
+configuration from `params.env` files in example directories.
 
 ## Troubleshooting
 
@@ -194,7 +196,7 @@ For additional assistance:
 
 ## Citation
 
-If you use this toolkit in your research, please cite (see `CITATION.cff` for complete references):
+If you use this toolkit in your research, please cite (see [`CITATION.cff`](CITATION.cff) for complete references):
 
 ```bibtex
 @software{nanopore_simulation_tools,
@@ -222,17 +224,17 @@ And cite the underlying tools:
 - Blasco Morozzo della Rocca
 - Domenico Raimondo
 
-## License
-
-This project is licensed under the BSD 3-Clause License - see the `LICENSE` file for details.
-
 ## Contributing
 
-We welcome contributions! See `CONTRIBUTING.md` for guidelines on:
+We welcome contributions! See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines on:
 - Reporting issues
 - Adapting workflows for new proteins
 - Creating custom force fields
 - Adding new workflow types
+
+## License
+
+This project is licensed under the BSD 3-Clause License - see the [`LICENSE`](LICENSE) file for details.
 
 ## Acknowledgments
 
