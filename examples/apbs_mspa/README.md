@@ -1,4 +1,9 @@
-# MspA Electrostatics Workflow
+
+# MspA electrostatics workflow (example)
+
+This directory provides a complete, ready-to-run example of the APBS electrostatics workflow for a membrane protein nanopore (MspA). It is intended as a template: copy and adapt for your own system by replacing input files and editing `params.env`.
+
+**Note:** For large fine-grid runs, disk usage can grow rapidly (see "Disk space planning" below). Always check your available space before running large parameter sweeps.
 
 Automated APBS (Adaptive Poisson-Boltzmann Solver) electrostatics calculations for Mycobacterium smegmatis porin A (MspA) nanopore with lipid membrane modeling.
 
@@ -372,25 +377,25 @@ grep -r "Total electrostatic energy" OUTPUT/apbs_runs/*pH6.0*/*/apbs_solv.out
 
 For disk usage planning in large sweeps, see the earlier "Disk space planning" section.
 
+
 ## Troubleshooting
 
-See the main [README.md troubleshooting section](../../README.md#troubleshooting) for common issues and solutions.
+See the main [README.md troubleshooting section](../../README.md#troubleshooting) for common issues and solutions. Key points:
 
-**MspA-specific issues:**
+- **Membrane parameters not appropriate:**
+  - Adjust `ZMEM`, `LMEM`, `R_TOP`, `R_BOTTOM` in `params.env`.
+  - These values are protein-specific; MspA defaults may not work for other nanopores.
+- **Grid center misalignment:**
+  - Verify `GCENT` centers grid on pore region.
+  - Use visualization software to check protein coordinates.
+  - MspA pore axis should align with Z-axis.
+- **Custom force field issues:**
+  - Try running without custom force field (remove `--userff` flag from `run_pdb2pqr.sh`).
+  - Check `pdb2pqr_forcefield/` files for errors.
+  - Review PDB2PQR log files for force field warnings.
 
-**Membrane parameters not appropriate:**
-- Adjust `ZMEM`, `LMEM`, `R_TOP`, `R_BOTTOM` in `params.env`
-- These values are protein-specific; MspA defaults may not work for other nanopores
-
-**Grid center misalignment:**
-- Verify `GCENT` centers grid on pore region
-- Use visualization software to check protein coordinates
-- MspA pore axis should align with Z-axis
-
-**Custom force field issues:**
-- Try running without custom force field (remove `--userff` flag from `run_pdb2pqr.sh`)
-- Check `pdb2pqr_forcefield/` files for errors
-- Review PDB2PQR log files for force field warnings
+**Validation tip:**
+If you do not see "Total electrostatic energy" in the output logs, check your grid and membrane settings in `params.env` and rerun the affected directories.
 
 ## Further reading
 

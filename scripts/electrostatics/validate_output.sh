@@ -5,6 +5,11 @@
 # Checks that all expected output files exist and calculations completed
 # successfully by parsing APBS output logs for success markers.
 #
+# This script should be run after all APBS calculations are complete. It checks
+# for missing files and for the "Total electrostatic energy" success marker in
+# each run directory. If validation fails, check your grid and membrane settings
+# in params.env and rerun the affected calculations.
+#
 # Usage:
 #   ./validate_output.sh -o OUTPUT_DIR [-v]
 #
@@ -147,7 +152,7 @@ for run_dir in "${run_dirs[@]}"; do
   else
     echo "  ✗ ${dir_name}: APBS calculation may have failed"
     echo "    - No 'Total electrostatic energy' found in apbs_solv.out"
-    echo "    - Check ${out_file} for errors"
+    echo "    - This usually indicates a grid or input error. Check ${out_file} for errors and review your params.env settings."
     n_missing_energy=$((n_missing_energy + 1))
     validation_failed=1
   fi
@@ -178,7 +183,7 @@ else
   echo ""
   echo "To fix issues:"
   echo "  1. Check error messages in .out files for failed directories"
-  echo "  2. Verify grid settings in params.env (see EXPECTED_OUTPUT.md)"
-  echo "  3. Re-run incomplete calculations: just resume"
+  echo "  2. Verify grid and membrane settings in params.env (see EXPECTED_OUTPUT.md)"
+  echo "  3. Re-run incomplete calculations: just resume or just all"
   exit 1
 fi

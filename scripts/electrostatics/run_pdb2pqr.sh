@@ -1,14 +1,17 @@
 #! /usr/bin/env bash
+# run_pdb2pqr.sh — Batch PDB2PQR conversion for all PDB/CIF files in a directory
 ########################################################################################
-# USAGE
+# Converts all PDB or CIF files in a directory to PQR format using PDB2PQR. All
+# output and logs are written to the specified output directory.
 #
-# $ ./run_pdb2pqr.sh [-h] [-c] -b PDB2PQR_BIN -i PDB_INPUT_DIR -o PQR_OUTPUT_DIR [-p pH] [-q PDB2PQR_ARGS] [-v]
+# This script is intended for batch conversion. If a required binary or
+# directory is missing, a clear error message will be shown. For
+# troubleshooting, check the log files in the output directory.
 #
-# Generates PQR files from PDB files in batch mode for a given pH.
+# Usage: ./run_pdb2pqr.sh [-h] [-c] -b PDB2PQR_BIN -i PDB_INPUT_DIR -o
+#   PQR_OUTPUT_DIR [-p pH] [-q PDB2PQR_ARGS] [-v]
 #
-# @author Kherim Willems
-# @author Francesco Quilli
-# @date 26 October 2025
+# @author Kherim Willems @author Francesco Quilli @date 26 October 2025
 ########################################################################################
 
 set -e
@@ -16,6 +19,15 @@ set -e
 # Usage information
 print_usage() {
   printf "Usage: ./run_pdb2pqr.sh [-h] [-c] -b PDB2PQR_BIN -i PDB_INPUT_DIR -o PQR_OUTPUT_DIR [-p pH] [-q PDB2PQR_ARGS] [-v]\n"
+  echo "  -b PDB2PQR_BIN   Path to pdb2pqr30 binary"
+  echo "  -i PDB_INPUT_DIR Directory containing input PDB or CIF files"
+  echo "  -o PQR_OUTPUT_DIR Directory to write PQR files and logs"
+  echo "  -p pH            Target pH value (default: 7.0)"
+  echo "  -q PDB2PQR_ARGS  Additional arguments for PDB2PQR"
+  echo "  -c               Clean output directory before running"
+  echo "  -v               Verbose output"
+  echo "  -h               Show this help message"
+  echo "\nAll output and logs are written to the specified output directory."
 }
 
 printf_verbose() {
@@ -51,7 +63,7 @@ while getopts 'hcb:i:o:p:q:v' flag; do
 done
 
 if [ ! -x "${pdb2pqr_bin}" ]; then
-  echo "Error: Could not find pdb2pqr30 binary in PATH! Please install PDB2PQR."
+  echo "Error: Could not find pdb2pqr30 binary at '${pdb2pqr_bin}'! Please install PDB2PQR and provide the correct path with -b."
   exit 1
 fi
 
@@ -75,7 +87,7 @@ pdbfiles=( $(find ${pdb_input_dir} -maxdepth 1 -type f \( -name "*.pdb" -o -name
 n=${#pdbfiles[@]}
 
 if [ $n -eq 0 ]; then
-  echo "Error: No PDB/CIF files found in ${pdb_input_dir}!"
+  echo "Error: No PDB or CIF files found in ${pdb_input_dir}! Please check your input directory."
   exit 1
 fi
 
@@ -110,8 +122,8 @@ for pdbfile in ${pdbfiles[@]}; do
   printf_verbose "  Progress: %s of %s completed (%s%%)\n" ${i} ${n_files} ${p}
 done
 
-# Print completion summary
 echo "PDB2PQR complete: Generated ${n_files} PQR files at pH ${ph}"
 echo "Output directory: ${pqr_output_dir}"
+echo "All logs are available in the output directory. If you encounter errors, check the corresponding .log files for details."
 
 exit 0

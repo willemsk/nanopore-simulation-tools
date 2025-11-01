@@ -1,11 +1,13 @@
 #! /usr/bin/env bash
 
+# run_apbs.sh — Batch APBS execution for all prepared run directories
 ########################################################################################
-# USAGE
+# Runs APBS computations in all directories matching DIRSTRING. This script checks
+# for required binaries and input files, and provides clear error messages if any
+# are missing. If APBS fails, check your input files and grid/membrane settings.
 #
-# $ ./run_apbs.sh [-h] -b APBS_BIN -m DRAW_BIN -d DIRSTRING [-v]
-#
-# Run APBS computations in the folders matching DIRSTRING.
+# Usage:
+#   ./run_apbs.sh [-h] -b APBS_BIN -m DRAW_BIN -d DIRSTRING [-v]
 #
 # @author Kherim Willems
 # @date 31 October 2025
@@ -15,7 +17,13 @@ set -e
 
 # Usage information
 print_usage() {
-  printf "Usage ./run_apbs.sh [-h] -b APBS_BIN -m DRAW_BIN -d DIRSTRING [-v]\n"
+  printf "Usage: ./run_apbs.sh [-h] -b APBS_BIN -m DRAW_BIN -d DIRSTRING [-v]\n"
+  echo "  -b APBS_BIN     Path to APBS binary"
+  echo "  -m DRAW_BIN     Path to draw_membrane2 binary"
+  echo "  -d DIRSTRING    Directory search string for APBS run directories"
+  echo "  -v              Verbose output"
+  echo "  -h              Show this help message"
+  echo "\nIf APBS fails, check your input files and grid/membrane settings."
 }
 
 printf_verbose() {
@@ -59,7 +67,7 @@ if [ ! -x "${draw_bin}" ]; then
 fi
 
 if [ -z "${dirstring}" ]; then
-  printf "You must supply a run directory search string!\n"
+  printf "Error: You must supply a run directory search string!\n"
   print_usage
   exit 1
 fi
@@ -81,6 +89,7 @@ for dir in ${apbs_directories[@]}; do
     if [ ! -f "${infile}" ]; then
       printf "Error: Missing required file '%s' in directory: %s\n" "${required_file}" "${dir}" >&2
       printf "\nRun 'just inputs' to generate APBS input files.\n" >&2
+      printf "If this error persists, check your params.env and APBS template files.\n" >&2
       exit 1
     fi
   done
@@ -161,10 +170,11 @@ echo "APBS execution complete"
 echo "======================================================================"
 echo "Processed ${n} run directories"
 echo "Output location: ${dirstring}"
+echo "If APBS fails, check your input files and grid/membrane settings in params.env."
 echo ""
 echo "Next steps:"
 echo "  - Validate results: just validate"
-echo "  - View outputs: see EXPECTED_OUTPUT.md for file descriptions"
+echo "  - View outputs: see \"Expected output\" section in README.md for file descriptions"
 echo "  - Visualize: see VISUALIZATION.md for visualization instructions"
 
 exit 0

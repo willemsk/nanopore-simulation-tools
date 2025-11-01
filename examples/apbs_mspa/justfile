@@ -1,4 +1,9 @@
-# justfile for APBS electrostatics calculations
+# justfile for APBS electrostatics calculations (example)
+#
+# This justfile is intended for use in an example workflow directory (e.g., examples/apbs_mspa).
+# Copy and adapt for new proteins or membrane systems by editing params.env and input files.
+# All recipes assume the current working directory is an example workflow.
+#
 # Configuration is loaded from params.env
 # Override parameters from command line: just pqrs PH_VALUES="7.0 7.4"
 #

@@ -37,6 +37,7 @@ All workflows use `just` (not make). Key recipes in `examples/apbs_mspa/justfile
 - `just inputs` - Prepare APBS run directories with templated inputs
 - `just apbs` - Execute APBS calculations across all configurations
 - `just all` - Run full pipeline sequentially
+- `just validate` - Check outputs for successful completion
 
 Override parameters: `just pqrs PH_VALUES="7.0 7.4"` or `just inputs IONC_VALUES="0.10 0.15"`
 

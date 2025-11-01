@@ -128,4 +128,4 @@ Electrostatic potential is typically measured in **kT/e** (thermal energy per el
 - **PyMOL APBS Tools**: https://pymolwiki.org/index.php/APBS
 - **VMD APBS Plugin**: https://www.ks.uiuc.edu/Research/vmd/plugins/apbsrun/
 - **Chimera Electrostatics**: https://www.cgl.ucsf.edu/chimera/docs/ContributedSoftware/apbs/apbs.html
-- **OpenDX Format**: http://opendx.sdsc.edu/docs/html/pages/usrgu068.htm
+- **OpenDX Format**: https://web.archive.org/web/20080808140524/http://opendx.sdsc.edu/docs/html/pages/usrgu068.html

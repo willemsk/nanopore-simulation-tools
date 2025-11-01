@@ -1,25 +1,40 @@
 # Nanopore simulation tools
 
-Automated workflow tools for running electrostatic calculations on biological
-nanopore membrane proteins using
-[PDB2PQR](https://github.com/Electrostatics/pdb2pqr) and
-[APBS](https://github.com/Electrostatics/apbs). This toolkit is very much a work
-in progress and aims to provide examples of reproducible computational workflows
-to aid in nanopore biophysics research.
 
-**Warning:** This is an early-stage project under active development. Use at your
-own risk. We are still looking for the optimal implementation of the workflows,
-so any feedback and contributions are welcome!
+Automated workflow tools for reproducible electrostatic calculations on
+biological nanopore membrane proteins. This toolkit streamlines the process of
+preparing, parameterizing, and running electrostatics simulations using
+[PDB2PQR](https://github.com/Electrostatics/pdb2pqr) (for structure protonation)
+and [APBS](https://github.com/Electrostatics/apbs) (for Poisson-Boltzmann
+electrostatics), with a focus on membrane-embedded nanopores.
+
+
+It provides a fully scripted, parameter-sweepable pipeline and example
+configurations to support computational biophysics research and nanopore
+engineering. The toolkit is modular and can be adapted for other membrane
+protein systems by copying and editing the example workflow directory.
+
+
+**Note:** The default example targets MspA. For other proteins, copy
+`examples/apbs_mspa` and adjust input files and parameters as needed.
+
+**Warning:** This is an early-stage project under active development. Use at
+your own risk. The workflows and scripts may change as we optimize the
+implementation. Feedback and contributions are welcome!
+
 
 ## Key features
 
 - Automated three-stage pipeline: PDB → PDB2PQR → APBS (with membrane modeling)
 - Parameter sweep capabilities (pH, ionic strength, grid resolutions)
+- Modular: easily adapt workflows for new proteins or membrane systems
+- Fully scripted and reproducible: all steps are automated and tracked
+- Output validation and troubleshooting tools included
 
 ## Quick start
 
-Assuming an Ubuntu system with `git`, `gcc`, and `bash` installed, follow these steps
-to set up and run the example workflow:
+
+Assuming an Ubuntu system with `git`, `gcc`, and `bash` installed, follow these steps to set up and run the example workflow. (For other systems, see the documentation links below.)
 
 ```bash
 # 1. Clone repository
@@ -40,13 +55,15 @@ cd examples/apbs_mspa
 just all
 ```
 
+
 This will generate protonated structures (`.pqr` files) and electrostatic
 potential maps (`.dx` files) for several MspA-D118R mutant nanopores at pH 7.0
-and and ionic strength of 0.15 M. Note that the default grid spacings are set to
-very coarse values (15 Å and 5 Å) for demonstration purposes and should need to
-be increased for production runs. Mind that the memory and disk space
-requirements grow with $n^3$ as the number of grid points $n$ per dimension
-increases.
+and ionic strength 0.15 M. 
+
+**Note:** The default grid spacings are set to coarse values (15 Å and 5 Å) for
+demonstration purposes. For production runs, increase these values for higher
+accuracy. Memory and disk requirements grow rapidly with grid size ($n^3$
+scaling).
 
 ## Installation
 
