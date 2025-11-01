@@ -18,7 +18,7 @@ so any feedback and contributions are welcome!
 
 ## Quick start
 
-Assuming an Ubuntu system with `git` and `bash` installed, follow these steps
+Assuming an Ubuntu system with `git`, `gcc`, and `bash` installed, follow these steps
 to set up and run the example workflow:
 
 ```bash
@@ -40,7 +40,13 @@ cd examples/apbs_mspa
 just all
 ```
 
-This will generate protonated structures (`.pqr` files) and electrostatic potential maps (`.dx` files) for the MspA nanopore at multiple pH values and ionic strengths.
+This will generate protonated structures (`.pqr` files) and electrostatic
+potential maps (`.dx` files) for several MspA-D118R mutant nanopores at pH 7.0
+and and ionic strength of 0.15 M. Note that the default grid spacings are set to
+very coarse values (15 Å and 5 Å) for demonstration purposes and should need to
+be increased for production runs. Mind that the memory and disk space
+requirements grow with $n^3$ as the number of grid points $n$ per dimension
+increases.
 
 ## Installation
 
@@ -111,16 +117,17 @@ OUTPUT/
 └── apbs_runs/
     └── {protein}_pH{pH}_{ionc}M/
         ├── apbs_dummy.in, apbs_solv.in         # APBS input files
-        ├── draw_membrane.in                     # Membrane parameters
-        ├── TM.pqr                               # Symlinked structure
+        ├── draw_membrane.in                    # Membrane parameters
+        ├── TM.pqr                              # Symlinked structure
         ├── dielx_L.dx, dielx_Lm.dx             # Dielectric maps (before/after membrane)
         ├── kappa_L.dx, kappa_Lm.dx             # Ion accessibility maps
         ├── charge_L.dx, charge_Lm.dx           # Charge distribution maps
         ├── pot_Lm.dx, pot_Sm.dx                # Electrostatic potentials (coarse/fine)
-        └── apbs_*.out                           # APBS output logs
+        └── apbs_*.out                          # APBS output logs
 ```
 
-See `examples/apbs_mspa/README.md` for complete output structure and validation details.
+See [`examples/apbs_mspa/README.md`](examples/apbs_mspa/README.md) for complete
+output structure and validation details.
 
 ### Cleaning up
 
@@ -150,7 +157,8 @@ nanopore-simulation-tools/
 
 ### Workflow scripts
 
-Scripts in `scripts/electrostatics/` automate the three-stage pipeline and are typically invoked via `just` recipes:
+Scripts in [`scripts/electrostatics/`](scripts/electrostatics/) automate the
+three-stage pipeline and are typically invoked via `just` recipes:
 
 ```bash
 cd examples/apbs_mspa/

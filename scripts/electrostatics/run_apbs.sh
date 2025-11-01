@@ -134,10 +134,12 @@ for dir in ${apbs_directories[@]}; do
 
   # Define APBS input files
   apbs_dummy_in="${dir}/apbs_dummy.in"
+  apbs_dummy_out="${dir}/apbs_dummy.out"
   apbs_solv_in="${dir}/apbs_solv.in"
+  apbs_solv_out="${dir}/apbs_solv.out"
 
   printf_verbose "    Generating coefficient maps with dummy run. "
-  run_apbs $apbs_dummy_in "${apbs_dummy_in}.out"
+  run_apbs $apbs_dummy_in "${apbs_dummy_out}"
 
   printf_verbose "    Adding membrane to coarse grid. "
   dielL="${dir}/dielx_L.dx"
@@ -148,7 +150,7 @@ for dir in ${apbs_directories[@]}; do
   draw_membrane $dielS
 
   printf_verbose "    Executing electrostatic calculation. "
-  run_apbs $apbs_solv_in "${apbs_solv_in}.out"
+  run_apbs $apbs_solv_in "${apbs_solv_out}"
 
 done
 

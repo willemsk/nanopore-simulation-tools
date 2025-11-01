@@ -140,13 +140,13 @@ for run_dir in "${run_dirs[@]}"; do
   
   # Check for APBS success marker in output log
   out_file="${run_dir}/apbs_solv.out"
-  if grep -q "Global net ELEC energy" "${out_file}"; then
-    energy=$(grep "Global net ELEC energy" "${out_file}" | awk '{print $5, $6}')
+  if grep -q "Total electrostatic energy" "${out_file}"; then
+    energy=$(grep "Total electrostatic energy" "${out_file}" | tail -1 | awk '{print $5, $6}')
     printf_verbose "    ✓ APBS completed successfully (energy: ${energy})\n"
     n_complete=$((n_complete + 1))
   else
     echo "  ✗ ${dir_name}: APBS calculation may have failed"
-    echo "    - No 'Global net ELEC energy' found in apbs_solv.out"
+    echo "    - No 'Total electrostatic energy' found in apbs_solv.out"
     echo "    - Check ${out_file} for errors"
     n_missing_energy=$((n_missing_energy + 1))
     validation_failed=1
