@@ -1,20 +1,40 @@
-# Nanopore simulation sools
+# Nanopore simulation tools
 
-Automated workflow tools for running electrostatic calculations on biological
-nanopore membrane proteins using
-[PDB2PQR](https://github.com/Electrostatics/pdb2pqr) and
-[APBS](https://github.com/Electrostatics/apbs). This toolkit is a work in
-progress and aims to provide examples of reproducible computational workflows to
-aid in nanopore biophysics research.
 
-**Key features:**
+Automated workflow tools for reproducible electrostatic calculations on
+biological nanopore membrane proteins. This toolkit streamlines the process of
+preparing, parameterizing, and running electrostatics simulations using
+[PDB2PQR](https://github.com/Electrostatics/pdb2pqr) (for structure protonation)
+and [APBS](https://github.com/Electrostatics/apbs) (for Poisson-Boltzmann
+electrostatics), with a focus on membrane-embedded nanopores.
+
+
+It provides a fully scripted, parameter-sweepable pipeline and example
+configurations to support computational biophysics research and nanopore
+engineering. The toolkit is modular and can be adapted for other membrane
+protein systems by copying and editing the example workflow directory.
+
+
+**Note:** The default example targets MspA. For other proteins, copy
+`examples/apbs_mspa` and adjust input files and parameters as needed.
+
+**Warning:** This is an early-stage project under active development. Use at
+your own risk. The workflows and scripts may change as we optimize the
+implementation. Feedback and contributions are welcome!
+
+
+## Key features
+
 - Automated three-stage pipeline: PDB → PDB2PQR → APBS (with membrane modeling)
 - Parameter sweep capabilities (pH, ionic strength, grid resolutions)
+- Modular: easily adapt workflows for new proteins or membrane systems
+- Fully scripted and reproducible: all steps are automated and tracked
+- Output validation and troubleshooting tools included
 
 ## Quick start
 
-Assuming an Ubuntu system with `git` and `bash` installed, follow these steps
-to set up and run the example workflow:
+
+Assuming an Ubuntu system with `git`, `gcc`, and `bash` installed, follow these steps to set up and run the example workflow. (For other systems, see the documentation links below.)
 
 ```bash
 # 1. Clone repository
@@ -24,12 +44,26 @@ cd nanopore-simulation-tools
 # 2. Install dependencies
 sudo apt-get install just pdb2pqr apbs
 
-# 3. Run example workflow
+# 3. Fetch and compile draw_membrane2 utility
+cd bin/
+wget https://raw.githubusercontent.com/Electrostatics/apbs/main/examples/helix/draw_membrane2.c
+gcc -O3 -o draw_membrane2 draw_membrane2.c -lm
+cd ..
+
+# 4. Run example workflow
 cd examples/apbs_mspa
 just all
 ```
 
-This will generate protonated structures (`.pqr` files) and electrostatic potential maps (`.dx` files) for the MspA nanopore at multiple pH values and ionic strengths.
+
+This will generate protonated structures (`.pqr` files) and electrostatic
+potential maps (`.dx` files) for several MspA-D118R mutant nanopores at pH 7.0
+and ionic strength 0.15 M. 
+
+**Note:** The default grid spacings are set to coarse values (15 Å and 5 Å) for
+demonstration purposes. For production runs, increase these values for higher
+accuracy. Memory and disk requirements grow rapidly with grid size ($n^3$
+scaling).
 
 ## Installation
 
@@ -40,12 +74,7 @@ This toolkit requires these main dependencies:
 - **`just` (command runner):** see [installation guide](https://github.com/casey/just?tab=readme-ov-file#installation)
 - **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
 - **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries) or [build from source](https://apbs.readthedocs.io/en/latest/getting/source.html)
-- **`draw_membrane2` (membrane drawing utility):** Pre-compiled binary included in `bin/`, or compile from [APBS examples](https://github.com/Electrostatics/apbs/tree/main/examples/helix):
-   ```bash
-   cd bin/
-   wget https://raw.githubusercontent.com/Electrostatics/apbs/main/examples/helix/draw_membrane2.c
-   gcc -O3 -o draw_membrane2 draw_membrane2.c -lm
-   ```
+- **`draw_membrane2` (membrane drawing utility):** compile from [APBS `helix` example](https://github.com/Electrostatics/apbs/tree/main/examples/helix/draw_membrane2.c) (see above)
 
 ### Verification
 
@@ -84,8 +113,8 @@ Edit `params.env` to configure:
 
 Override from command line:
 ```bash
-just pqrs PH_VALUES="7.4"              # Single pH
-just inputs IONC_VALUES="0.10 0.20"    # Custom ion concentrations
+just PH_VALUES="7.4" pqrs              # Single pH
+just IONC_VALUES="0.10 0.20" inputs    # Custom ion concentrations
 ```
 
 ### Validation and recovery
@@ -105,16 +134,17 @@ OUTPUT/
 └── apbs_runs/
     └── {protein}_pH{pH}_{ionc}M/
         ├── apbs_dummy.in, apbs_solv.in         # APBS input files
-        ├── draw_membrane.in                     # Membrane parameters
-        ├── TM.pqr                               # Symlinked structure
+        ├── draw_membrane.in                    # Membrane parameters
+        ├── TM.pqr                              # Symlinked structure
         ├── dielx_L.dx, dielx_Lm.dx             # Dielectric maps (before/after membrane)
         ├── kappa_L.dx, kappa_Lm.dx             # Ion accessibility maps
         ├── charge_L.dx, charge_Lm.dx           # Charge distribution maps
         ├── pot_Lm.dx, pot_Sm.dx                # Electrostatic potentials (coarse/fine)
-        └── apbs_*.out                           # APBS output logs
+        └── apbs_*.out                          # APBS output logs
 ```
 
-See `examples/apbs_mspa/README.md` for complete output structure and validation details.
+See [`examples/apbs_mspa/README.md`](examples/apbs_mspa/README.md) for complete
+output structure and validation details.
 
 ### Cleaning up
 
@@ -126,8 +156,7 @@ just clean             # Remove all generated outputs
 
 ```
 nanopore-simulation-tools/
-├── bin/                         # Pre-compiled binaries (convenience)
-│   └── draw_membrane2           # Membrane modeling utility
+├── bin/                         # Compiled binaries
 ├── scripts/
 │   └── electrostatics/          # Electrostatics workflow automation
 │       ├── workflow_helpers.sh  # Shared helper functions
@@ -145,7 +174,8 @@ nanopore-simulation-tools/
 
 ### Workflow scripts
 
-Scripts in `scripts/electrostatics/` automate the three-stage pipeline and are typically invoked via `just` recipes:
+Scripts in [`scripts/electrostatics/`](scripts/electrostatics/) automate the
+three-stage pipeline and are typically invoked via `just` recipes:
 
 ```bash
 cd examples/apbs_mspa/
@@ -164,8 +194,9 @@ configuration from `params.env` files in example directories.
 ### Common issues
 
 **"APBS binary not found"**
-- Ensure APBS is in your PATH or update `APBS_BIN` in the justfile
-- Try using pre-compiled binary: check `bin/README.md`
+- Ensure APBS is installed and available in your PATH
+- Verify with `which apbs` or `apbs --version`
+- See [APBS installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html)
 
 **"Atom off the mesh" errors**
 - Increase grid size: edit `GRID_L` and/or `GRID_S` in `params.env`
@@ -184,7 +215,7 @@ configuration from `params.env` files in example directories.
 **Silent calculation failures**
 - Run `just validate` to check output completeness
 - Inspect `.out` files in run directories for APBS error messages
-- Look for "Global net ELEC energy" in `.out` files - absence indicates failure
+- Look for "Total electrostatic energy" in `.out` files - absence indicates failure
 
 ### Getting help
 

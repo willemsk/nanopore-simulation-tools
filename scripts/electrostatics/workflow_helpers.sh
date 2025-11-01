@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
+
 ################################################################################
-# workflow_helpers.sh — Helper functions for APBS electrostatics workflow
+# workflow_helpers.sh — Shared helper functions for APBS electrostatics workflow
 ################################################################################
-# Provides template generation and validation utilities.
-# Designed to be sourced by justfile recipes and standalone scripts.
+# This script provides template generation, validation, and file-checking utilities.
+# It is sourced by all workflow scripts and justfile recipes in this toolkit.
 #
 # Usage:
 #   source workflow_helpers.sh
 #   create_apbs_input template.in output.in ionc
 #   ...
+#
+# All functions are intended for use in the main workflow and expect environment
+# variables to be set by params.env or the justfile.
 ################################################################################
 
 set -e
@@ -26,7 +30,7 @@ create_apbs_input() {
   local ionc=$3
   
   if [ ! -f "$template" ]; then
-    echo "Error: Template file '$template' not found" >&2
+    echo "Error: Template file '$template' not found (check APBS_DUMMY_TEMPLATE/APBS_SOLV_TEMPLATE in params.env)" >&2
     return 1
   fi
   
@@ -109,7 +113,7 @@ validate_templates() {
   for template in "${templates[@]}"; do
     # Check file existence
     if [ ! -f "$template" ]; then
-      echo "Warning: Template file '$template' not found" >&2
+      echo "Warning: Template file '$template' not found (check template paths in params.env)" >&2
       issues_found=1
       continue
     fi
@@ -133,14 +137,14 @@ check_pqr_files() {
   local pqr_dir=$1
   
   if [ ! -d "$pqr_dir" ]; then
-    echo "Warning: PQR directory '$pqr_dir' does not exist" >&2
+    echo "Warning: PQR directory '$pqr_dir' does not exist (check OUTPUT_DIR and run pqrs)" >&2
     return 1
   fi
   
   local pqr_count=$(find "$pqr_dir" -type f -name "*.pqr" 2>/dev/null | wc -l)
   
   if [ "$pqr_count" -eq 0 ]; then
-    echo "Warning: No PQR files found in '$pqr_dir'" >&2
+    echo "Warning: No PQR files found in '$pqr_dir' (check PDB2PQR output and input PDB files)" >&2
     return 1
   fi
   
@@ -154,14 +158,14 @@ check_apbs_dirs() {
   local apbs_dir=$1
   
   if [ ! -d "$apbs_dir" ]; then
-    echo "Warning: APBS directory '$apbs_dir' does not exist" >&2
+    echo "Warning: APBS directory '$apbs_dir' does not exist (check OUTPUT_DIR and run inputs)" >&2
     return 1
   fi
   
   local dir_count=$(find "$apbs_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
   
   if [ "$dir_count" -eq 0 ]; then
-    echo "Warning: No APBS run directories found in '$apbs_dir'" >&2
+    echo "Warning: No APBS run directories found in '$apbs_dir' (run inputs to prepare)" >&2
     return 1
   fi
   
@@ -175,14 +179,14 @@ check_pdb_files() {
   local pdb_dir=$1
   
   if [ ! -d "$pdb_dir" ]; then
-    echo "Warning: PDB directory '$pdb_dir' does not exist" >&2
+    echo "Warning: PDB directory '$pdb_dir' does not exist (check PDB_INPUT_DIR)" >&2
     return 1
   fi
   
   local pdb_count=$(find "$pdb_dir" -maxdepth 1 -type f \( -name "*.pdb" -o -name "*.cif" \) 2>/dev/null | wc -l)
   
   if [ "$pdb_count" -eq 0 ]; then
-    echo "Warning: No PDB/CIF files found in '$pdb_dir'" >&2
+    echo "Warning: No PDB/CIF files found in '$pdb_dir' (add .pdb or .cif files to input directory)" >&2
     return 1
   fi
   

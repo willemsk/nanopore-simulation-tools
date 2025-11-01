@@ -5,6 +5,11 @@
 # Checks that all expected output files exist and calculations completed
 # successfully by parsing APBS output logs for success markers.
 #
+# This script should be run after all APBS calculations are complete. It checks
+# for missing files and for the "Total electrostatic energy" success marker in
+# each run directory. If validation fails, check your grid and membrane settings
+# in params.env and rerun the affected calculations.
+#
 # Usage:
 #   ./validate_output.sh -o OUTPUT_DIR [-v]
 #
@@ -140,14 +145,14 @@ for run_dir in "${run_dirs[@]}"; do
   
   # Check for APBS success marker in output log
   out_file="${run_dir}/apbs_solv.out"
-  if grep -q "Global net ELEC energy" "${out_file}"; then
-    energy=$(grep "Global net ELEC energy" "${out_file}" | awk '{print $5, $6}')
+  if grep -q "Total electrostatic energy" "${out_file}"; then
+    energy=$(grep "Total electrostatic energy" "${out_file}" | tail -1 | awk '{print $5, $6}')
     printf_verbose "    ✓ APBS completed successfully (energy: ${energy})\n"
     n_complete=$((n_complete + 1))
   else
     echo "  ✗ ${dir_name}: APBS calculation may have failed"
-    echo "    - No 'Global net ELEC energy' found in apbs_solv.out"
-    echo "    - Check ${out_file} for errors"
+    echo "    - No 'Total electrostatic energy' found in apbs_solv.out"
+    echo "    - This usually indicates a grid or input error. Check ${out_file} for errors and review your params.env settings."
     n_missing_energy=$((n_missing_energy + 1))
     validation_failed=1
   fi
@@ -171,14 +176,14 @@ if [ ${validation_failed} -eq 0 ]; then
   echo ""
   echo "Next steps:"
   echo "  - View results: see VISUALIZATION.md for visualization instructions"
-  echo "  - Extract energies: grep 'Global net ELEC energy' ${apbs_runs_dir}/*/apbs_solv.out"
+  echo "  - Extract energies: grep 'Total electrostatic energy' ${apbs_runs_dir}/*/apbs_solv.out"
   exit 0
 else
   echo "✗ Validation failed"
   echo ""
   echo "To fix issues:"
   echo "  1. Check error messages in .out files for failed directories"
-  echo "  2. Verify grid settings in params.env (see EXPECTED_OUTPUT.md)"
-  echo "  3. Re-run incomplete calculations: just resume"
+  echo "  2. Verify grid and membrane settings in params.env (see EXPECTED_OUTPUT.md)"
+  echo "  3. Re-run incomplete calculations: just resume or just all"
   exit 1
 fi

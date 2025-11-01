@@ -8,9 +8,13 @@ If you encounter bugs or have feature requests, please open an issue on the [Git
 - Your environment details (OS, APBS version, PDB2PQR version)
 - Relevant error messages or log outputs
 
-## Adapting workflows
 
-This toolkit is designed to be extensible for different nanopore systems and simulation types.
+## Adapting and extending workflows
+
+This toolkit is designed to be extensible for different nanopore systems and
+simulation types. All new workflows should be self-contained (with their own
+`justfile`, `params.env`, and documentation) and placed in a new subdirectory
+under `examples/`.
 
 ### Using other proteins
 
@@ -23,17 +27,21 @@ This toolkit is designed to be extensible for different nanopore systems and sim
 
 The custom CHARMM force field in `pdb2pqr_forcefield/` can be adapted for specialized residues or non-standard chemistry. See the [PDB2PQR documentation on custom force fields](https://pdb2pqr.readthedocs.io/en/latest/extending.html#adding-new-forcefield-parameters) for detailed information on force field modification.
 
-### Creating new workflow types
+
+### Creating or requesting new workflow types
 
 To add capabilities beyond electrostatics (e.g., mutagenesis, translocation energy landscapes):
 
-1. Create a new directory under `examples/` (e.g., `examples/mutagenesis/`)
-2. Define workflow-specific parameters in a `params.env` file
-3. Add orchestration scripts to `scripts/<workflow_type>/`
-4. Create a `justfile` adapted from the `apbs_mspa` pattern
-5. Include templates and force fields as needed
+1. Create a new directory under `examples/` (e.g., `examples/mutagenesis/`).
+2. Define workflow-specific parameters in a `params.env` file.
+3. Add orchestration scripts to `scripts/<workflow_type>/`.
+4. Create a `justfile` adapted from the `apbs_mspa` pattern.
+5. Include templates and force fields as needed.
+6. Document the workflow clearly in a local README.
 
-Each workflow should be self-contained with its own documentation.
+If you would like to request a new workflow type or need guidance, please open an issue or discussion on GitHub.
+
+For style and architecture guidelines, see `.github/copilot-instructions.md`.
 
 ## Code style
 

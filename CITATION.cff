@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite both the article from preferred-citation and the software itself."
 type: software
 title: "Nanopore Simulation Tools"
-abstract: "Automated workflow tools for electrostatic calculations on biological nanopore proteins using APBS (Adaptive Poisson-Boltzmann Solver)."
+abstract: "Automated workflow tools for electrostatic calculations on biological nanopore proteins using PDB2PQR and APBS."
 authors:
   - family-names: "Reccia"
     given-names: "Marco"
@@ -23,7 +23,7 @@ authors:
     given-names: "Mauro"
     orcid: "https://orcid.org/0000-0002-4509-1247"
 repository-code: "https://github.com/willemsk/nanopore-simulation-tools"
-license: BSD-3-Clause
+license: GPL-3.0
 version: 1.0.0
 date-released: 2025-10-31
 
