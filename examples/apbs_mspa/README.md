@@ -10,7 +10,10 @@ This example demonstrates the complete electrostatics workflow for a biological 
 2. **Input preparation** - Create APBS run directories with membrane parameters
 3. **APBS calculations** - Compute electrostatic potentials with membrane insertion
 
-The workflow processes multiple PDB orientations at various pH values and ionic strengths, generating electrostatic potential maps useful for understanding ion permeation, gating mechanisms, and DNA/protein translocation.
+The workflow processes multiple PDB MspA variants (wild-type and several D118R
+mutants created with different tools), generating electrostatic potential maps
+useful for visualizing the electrostatic impact of mutations and conformational
+variations.
 
 ## Quick start
 
@@ -44,10 +47,10 @@ Converts PDB structures to PQR format with protonation states calculated at spec
 **Customization:**
 ```bash
 # Single pH value
-just pqrs PH_VALUES="7.4"
+just PH_VALUES="7.4" pqrs
 
 # Multiple pH values
-just pqrs PH_VALUES="6.0 7.0 8.0"
+just PH_VALUES="6.0 7.0 8.0" pqrs
 ```
 
 ### Stage 2: input preparation (`just inputs`)
@@ -69,10 +72,10 @@ Creates APBS run directories with templated input files for each PQR × ion conc
 **Customization:**
 ```bash
 # Single ion concentration
-just inputs IONC_VALUES="0.10"
+just IONC_VALUES="0.10" inputs
 
 # Multiple concentrations
-just inputs IONC_VALUES="0.05 0.10 0.15 0.20"
+just IONC_VALUES="0.05 0.10 0.15 0.20" inputs
 ```
 
 ### Stage 3: APBS execution (`just apbs`)

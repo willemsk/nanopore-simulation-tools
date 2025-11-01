@@ -96,8 +96,8 @@ Edit `params.env` to configure:
 
 Override from command line:
 ```bash
-just pqrs PH_VALUES="7.4"              # Single pH
-just inputs IONC_VALUES="0.10 0.20"    # Custom ion concentrations
+just PH_VALUES="7.4" pqrs              # Single pH
+just IONC_VALUES="0.10 0.20" inputs    # Custom ion concentrations
 ```
 
 ### Validation and recovery
