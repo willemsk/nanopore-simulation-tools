@@ -7,7 +7,12 @@ nanopore membrane proteins using
 progress and aims to provide examples of reproducible computational workflows to
 aid in nanopore biophysics research.
 
-**Key features:**
+**Warning:** This is an early-stage project under active development. Use at your
+own risk. We are still looking for the optimal implementation of the workflows,
+so any feedback and contributions are welcome!
+
+## Key features
+
 - Automated three-stage pipeline: PDB → PDB2PQR → APBS (with membrane modeling)
 - Parameter sweep capabilities (pH, ionic strength, grid resolutions)
 
@@ -24,7 +29,13 @@ cd nanopore-simulation-tools
 # 2. Install dependencies
 sudo apt-get install just pdb2pqr apbs
 
-# 3. Run example workflow
+# 3. Fetch and compile draw_membrane2 utility
+cd bin/
+wget https://raw.githubusercontent.com/Electrostatics/apbs/main/examples/helix/draw_membrane2.c
+gcc -O3 -o draw_membrane2 draw_membrane2.c -lm
+cd ..
+
+# 4. Run example workflow
 cd examples/apbs_mspa
 just all
 ```
@@ -40,12 +51,7 @@ This toolkit requires these main dependencies:
 - **`just` (command runner):** see [installation guide](https://github.com/casey/just?tab=readme-ov-file#installation)
 - **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
 - **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries) or [build from source](https://apbs.readthedocs.io/en/latest/getting/source.html)
-- **`draw_membrane2` (membrane drawing utility):** Pre-compiled binary included in `bin/`, or compile from [APBS examples](https://github.com/Electrostatics/apbs/tree/main/examples/helix):
-   ```bash
-   cd bin/
-   wget https://raw.githubusercontent.com/Electrostatics/apbs/main/examples/helix/draw_membrane2.c
-   gcc -O3 -o draw_membrane2 draw_membrane2.c -lm
-   ```
+- **`draw_membrane2` (membrane drawing utility):** compile from [APBS `helix` example](https://github.com/Electrostatics/apbs/tree/main/examples/helix/draw_membrane2.c) (see above)
 
 ### Verification
 
@@ -126,8 +132,7 @@ just clean             # Remove all generated outputs
 
 ```
 nanopore-simulation-tools/
-├── bin/                         # Pre-compiled binaries (convenience)
-│   └── draw_membrane2           # Membrane modeling utility
+├── bin/                         # Compiled binaries
 ├── scripts/
 │   └── electrostatics/          # Electrostatics workflow automation
 │       ├── workflow_helpers.sh  # Shared helper functions
