@@ -8,7 +8,6 @@
 #   just inputs    - Prepare APBS run directories
 #   just apbs      - Execute APBS calculations
 #   just validate  - Check output completeness and correctness
-#   just resume    - Re-run incomplete or failed calculations
 #   just clean     - Remove all generated outputs
 #
 # See README.md for detailed usage instructions

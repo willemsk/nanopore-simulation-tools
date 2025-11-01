@@ -16,7 +16,7 @@ This is a computational biophysics toolkit for running APBS (Adaptive Poisson-Bo
 ## Architecture
 
 ### Directory structure
-- `bin/` - Pre-compiled Intel binaries: `apbs-intel` (APBS solver), `draw_membrane2` (membrane modeler from [APBS examples](https://github.com/Electrostatics/apbs/blob/main/examples/helix/draw_membrane2.c))
+- `bin/` - Compiled utilities: `draw_membrane2` (membrane modeler from [APBS examples](https://github.com/Electrostatics/apbs/blob/main/examples/helix/draw_membrane2.c))
 - `scripts/electrostatics/` - Bash orchestration scripts and helper functions
 - `examples/` - Workflow templates (currently `apbs_mspa/` demonstrates electrostatics pipeline)
   - Each example is self-contained with `justfile`, `params.env`, templates, and force fields
@@ -103,14 +103,14 @@ PDB2PQR force fields live in `pdb2pqr_forcefield/`:
 
 **Required dependencies:**
 - `pdb2pqr30` - Must be available in PATH ([installation guide](https://pdb2pqr.readthedocs.io/))
+- `apbs` - APBS solver, must be available in PATH ([installation guide](https://apbs.readthedocs.io/))
 - `just` - Command runner for workflow orchestration ([installation guide](https://github.com/casey/just))
 - Bash 4.0+ with standard utilities (`sed`, `grep`, `find`)
 
 **Binaries in `bin/`:**
-- `apbs-intel` - Intel-compiled APBS solver (build from [APBS source](https://github.com/Electrostatics/apbs))
 - `draw_membrane2` - Membrane drawing utility (compile from [APBS examples](https://github.com/Electrostatics/apbs/blob/main/examples/helix/draw_membrane2.c))
 
-Justfile resolves binary paths dynamically: `APBS_BIN := realpath ../../bin/apbs-intel`
+Justfile resolves binary paths dynamically: `APBS_BIN := which apbs`
 
 ## Common patterns
 

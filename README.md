@@ -3,9 +3,9 @@
 Automated workflow tools for running electrostatic calculations on biological
 nanopore membrane proteins using
 [PDB2PQR](https://github.com/Electrostatics/pdb2pqr) and
-[APBS](https://github.com/Electrostatics/apbs). This toolkit is a work in
-progress and aims to provide examples of reproducible computational workflows to
-aid in nanopore biophysics research.
+[APBS](https://github.com/Electrostatics/apbs). This toolkit is very much a work
+in progress and aims to provide examples of reproducible computational workflows
+to aid in nanopore biophysics research.
 
 **Warning:** This is an early-stage project under active development. Use at your
 own risk. We are still looking for the optimal implementation of the workflows,
@@ -177,8 +177,9 @@ configuration from `params.env` files in example directories.
 ### Common issues
 
 **"APBS binary not found"**
-- Ensure APBS is in your PATH or update `APBS_BIN` in the justfile
-- Try using pre-compiled binary: check `bin/README.md`
+- Ensure APBS is installed and available in your PATH
+- Verify with `which apbs` or `apbs --version`
+- See [APBS installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html)
 
 **"Atom off the mesh" errors**
 - Increase grid size: edit `GRID_L` and/or `GRID_S` in `params.env`
