@@ -1,5 +1,6 @@
 # Nanopore simulation tools
 
+[![DOI](https://zenodo.org/badge/1029706072.svg)](https://doi.org/10.5281/zenodo.17503995)
 
 Automated workflow tools for reproducible electrostatic calculations on
 biological nanopore membrane proteins. This toolkit streamlines the process of
