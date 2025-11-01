@@ -171,7 +171,7 @@ if [ ${validation_failed} -eq 0 ]; then
   echo ""
   echo "Next steps:"
   echo "  - View results: see VISUALIZATION.md for visualization instructions"
-  echo "  - Extract energies: grep 'Global net ELEC energy' ${apbs_runs_dir}/*/apbs_solv.out"
+  echo "  - Extract energies: grep 'Total electrostatic energy' ${apbs_runs_dir}/*/apbs_solv.out"
   exit 0
 else
   echo "✗ Validation failed"

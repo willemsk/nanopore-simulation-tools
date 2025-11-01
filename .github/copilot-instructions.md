@@ -168,7 +168,7 @@ Each successful APBS run produces:
 
 ### Success indicators
 Check APBS output logs (`.out` files) for:
-- `Global net ELEC energy = X.XXXE+XX kJ/mol` - Indicates successful completion
+- `Total electrostatic energy = X.XXXE+XX kJ/mol` - Indicates successful completion
 - No "Error" or "ASSERTION FAILURE" messages
 - All `.dx` output files written successfully
 

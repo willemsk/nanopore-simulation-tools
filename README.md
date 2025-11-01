@@ -1,4 +1,4 @@
-# Nanopore simulation sools
+# Nanopore simulation tools
 
 Automated workflow tools for running electrostatic calculations on biological
 nanopore membrane proteins using
@@ -197,7 +197,7 @@ configuration from `params.env` files in example directories.
 **Silent calculation failures**
 - Run `just validate` to check output completeness
 - Inspect `.out` files in run directories for APBS error messages
-- Look for "Global net ELEC energy" in `.out` files - absence indicates failure
+- Look for "Total electrostatic energy" in `.out` files - absence indicates failure
 
 ### Getting help
 

@@ -109,14 +109,14 @@ Runs APBS calculations with membrane insertion for each prepared directory.
 **Energy calculations:**
 Check `.out` files for lines like:
 ```
-Global net ELEC energy = -1.234567E+03 kJ/mol
+Total electrostatic energy = -1.234567E+03 kJ/mol
 ```
 
 ### Validation (`just validate`)
 
 Verifies calculation completeness and success by checking:
 - All expected `.dx` files exist
-- `.out` files contain "Global net ELEC energy" markers
+- `.out` files contain "Total electrostatic energy" markers
 - No failed or incomplete calculations
 
 ### Output validation and file structure
@@ -161,7 +161,7 @@ Per run directory:
 
 APBS logs (`apbs_solv.out`) should contain:
 ```
-Global net ELEC energy = -X.XXXXXXE+XX kJ/mol
+Total electrostatic energy = -X.XXXXXXE+XX kJ/mol
 ```
 Absence of this line indicates calculation failure.
 
@@ -178,7 +178,7 @@ find OUTPUT/apbs_runs/ -mindepth 1 -maxdepth 1 -type d | wc -l
 find OUTPUT/apbs_runs/ -name "pot_Lm.dx" | wc -l
 
 # Check for successful APBS completions
-grep -r "Global net ELEC energy" OUTPUT/apbs_runs/*/apbs_solv.out | wc -l
+grep -r "Total electrostatic energy" OUTPUT/apbs_runs/*/apbs_solv.out | wc -l
 ```
 
 **Disk space planning:**
@@ -213,17 +213,6 @@ just clean     # Remove all OUTPUT/ contents
 ## Configuration
 
 Edit `params.env` to customize workflow parameters.
-
-### Structure selection
-
-```bash
-# PDB files to process (from pdb/ directory)
-# Leave empty to process all .pdb files
-PDB_FILES=""           # Process all
-# PDB_FILES="wt_mspa_oriented.pdb"  # Process specific file
-```
-
-The `pdb/` directory contains multiple MspA orientations prepared with different visualization tools. See `pdb/README.md` for details.
 
 ### pH and ionic strength
 
@@ -285,10 +274,9 @@ R_BOTTOM=17.5   # Bottom exclusion radius (Å)
 ```bash
 PDIE=10.0       # Protein interior dielectric
 SDIE=80.0       # Water/solvent dielectric
-MDIE=2.0        # Membrane dielectric
 ```
 
-Standard values for protein/water/lipid systems. Rarely need adjustment.
+Membrane dielectric is fixed at 2.0 inside `draw_membrane2.c` (not configurable in `params.env`).
 
 ### Advanced settings
 
@@ -328,32 +316,61 @@ OpenDX format grid data. Load into visualization software:
 
 ### Energy values
 
-Extract from `.out` files:
+APBS writes total electrostatic energy near the end of `apbs_solv.out`:
+```
+Total electrostatic energy = -1.234567E+03 kJ/mol
+```
+This line is the success marker used by `just validate`.
+
+**How to extract energies for all runs:**
 ```bash
-grep "Global net ELEC energy" OUTPUT/apbs_runs/*/apbs_solv.out
+grep -h "Total electrostatic energy" OUTPUT/apbs_runs/*/apbs_solv.out
 ```
 
-**Interpretation:**
-- Total electrostatic energy of system (kJ/mol)
-- Comparison between conditions shows pH/ionic strength effects
-- More negative = more favorable electrostatic configuration
-
-## Parameter sweeps
-
-Run calculations across multiple conditions:
-
+**Quick summary (count successful runs):**
 ```bash
-# Edit params.env
+grep -r "Total electrostatic energy" OUTPUT/apbs_runs/*/apbs_solv.out | wc -l
+```
+
+**Interpretation guidelines:**
+- Units: kJ/mol (APBS reports energies in consistent units; convert as needed).
+- More negative values generally indicate stronger favorable electrostatic interactions under the modeled conditions.
+- Compare across pH or ionic strength sweeps to identify conditions that stabilize (large negative shift) or destabilize (less negative / positive shift) the pore environment.
+- Large deviations between similar conditions may indicate grid mis-centering or an incomplete run—revalidate those directories.
+
+**Failure indicators:**
+- Missing energy line entirely.
+- Presence of error strings ("ASSERTION FAILURE", "Atom off the mesh").
+- Zero-length or absent potential/map files.
+
+If any failure indicators appear, adjust grid (`DIME_*`, `GRID_*`) or membrane geometry (`ZMEM`, `LMEM`, radii) and re-run affected directories.
+
+### Parameter sweeps
+
+To explore multiple pH or ionic strengths, edit `params.env`:
+```bash
 PH_VALUES="6.0 7.0 8.0"
 IONC_VALUES="0.05 0.10 0.15 0.20"
-
-# Run workflow
-just all
-
-# This generates 4 PQR files and 16 APBS run directories (4 pH × 4 ionc) for each PDB file.
+```
+Then re-run:
+```bash
+just clean && just all
 ```
 
-Check expected output structure in the "Output validation and file structure" section above.
+After completion, summarize energies:
+```bash
+for f in OUTPUT/apbs_runs/*/apbs_solv.out; do
+  printf "%s\t" "$(basename "$(dirname "$f") )"""
+  grep -h "Total electrostatic energy" "$f"
+done | column -t
+```
+
+You can subset by condition:
+```bash
+grep -r "Total electrostatic energy" OUTPUT/apbs_runs/*pH6.0*/*/apbs_solv.out
+```
+
+For disk usage planning in large sweeps, see the earlier "Disk space planning" section.
 
 ## Troubleshooting
 
