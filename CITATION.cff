@@ -1,0 +1,75 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the article from preferred-citation and the software itself."
+type: software
+title: "Nanopore Simulation Tools"
+abstract: "Automated workflow tools for electrostatic calculations on biological nanopore proteins using APBS (Adaptive Poisson-Boltzmann Solver)."
+authors:
+  - family-names: "Reccia"
+    given-names: "Marco"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Quilli"
+    given-names: "Francesco"
+    orcid: "https://orcid.org/0009-0003-9635-1808"
+  - family-names: "Willems"
+    given-names: "Kherim"
+    orcid: "https://orcid.org/0000-0003-1341-1581"
+  - family-names: "Morozzo della Rocca"
+    given-names: "Blasco"
+    orcid: "https://orcid.org/0000-0001-5491-1131"
+  - family-names: "Raimondo"
+    given-names: "Domenico"
+    orcid: "https://orcid.org/0000-0002-1780-7295"
+  - family-names: "Chinappi"
+    given-names: "Mauro"
+    orcid: "https://orcid.org/0000-0002-4509-1247"
+repository-code: "https://github.com/willemsk/nanopore-simulation-tools"
+license: BSD-3-Clause
+version: 1.0.0
+date-released: 2025-10-31
+
+preferred-citation:
+  type: article
+  title: "Bioinformatic and computational biophysics tools for nanopore engineering: a review from standard approaches to machine learning advancements"
+  authors:
+  - family-names: "Reccia"
+    given-names: "Marco"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Quilli"
+    given-names: "Francesco"
+    orcid: "https://orcid.org/0009-0003-9635-1808"
+  - family-names: "Willems"
+    given-names: "Kherim"
+    orcid: "https://orcid.org/0000-0003-1341-1581"
+  - family-names: "Morozzo della Rocca"
+    given-names: "Blasco"
+    orcid: "https://orcid.org/0000-0001-5491-1131"
+  - family-names: "Raimondo"
+    given-names: "Domenico"
+    orcid: "https://orcid.org/0000-0002-1780-7295"
+  - family-names: "Chinappi"
+    given-names: "Mauro"
+    orcid: "https://orcid.org/0000-0002-4509-1247"
+  journal: "Journal of Nanobiotechnology"
+  year: 2025
+  # doi: "" Add DOI when available
+
+references:
+  - type: software
+    title: "APBS: Adaptive Poisson-Boltzmann Solver"
+    authors:
+      - name: "APBS Development Team"
+    repository-code: "https://github.com/Electrostatics/apbs"
+    url: "https://apbs.readthedocs.io/en/latest/supporting.html#citing-our-software"
+  - type: software
+    title: "PDB2PQR"
+    authors:
+      - name: "PDB2PQR Development Team"
+    repository-code: "https://github.com/Electrostatics/pdb2pqr"
+    url: "https://www.poissonboltzmann.org/"
+  - type: software
+    title: "just: A Handy Way to Save and Run Commands"
+    authors:
+      - family-names: "Rodarmor"
+        given-names: "Casey"
+    repository-code: "https://github.com/casey/just"
+    url: "https://just.systems/"
