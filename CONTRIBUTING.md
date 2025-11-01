@@ -21,8 +21,7 @@ This toolkit is designed to be extensible for different nanopore systems and sim
 
 ### Modifying force fields
 
-The custom CHARMM force field in `pdb2pqr_forcefield/` can be adapted for specialized residues or non-standard chemistry. For detailed information on force field modification, see:
-- [PDB2PQR documentation on custom force fields](https://pdb2pqr.readthedocs.io/en/latest/extending.html#adding-new-forcefield-parameters)
+The custom CHARMM force field in `pdb2pqr_forcefield/` can be adapted for specialized residues or non-standard chemistry. See the [PDB2PQR documentation on custom force fields](https://pdb2pqr.readthedocs.io/en/latest/extending.html#adding-new-forcefield-parameters) for detailed information on force field modification.
 
 ### Creating new workflow types
 

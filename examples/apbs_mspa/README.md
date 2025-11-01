@@ -116,6 +116,91 @@ Verifies calculation completeness and success by checking:
 - `.out` files contain "Global net ELEC energy" markers
 - No failed or incomplete calculations
 
+### Output validation and file structure
+
+For default configuration (`PH_VALUES="7.0"`, `IONC_VALUES="0.15"`, 4 PDB files):
+
+**PQR generation:**
+- 4 PQR files (one per PDB file at pH 7.0)
+- 4 log files
+
+**APBS runs:**
+- 4 run directories (4 PDB files × 1 pH × 1 ionc)
+- Each directory contains 21 files:
+  - 3 input files (`.in`)
+  - 1 PQR symlink
+  - 11 coefficient maps (`.dx` before and after membrane)
+  - 2 potential maps (`.dx`)
+  - 2 output logs (`.out`)
+  - 1 temporary file (`io.mc`)
+
+**Total:** 4 PQR directories + 84 files in APBS run directories = ~88 files
+
+**Full parameter sweep example:**
+
+For `PH_VALUES="6.0 7.0 8.0"` and `IONC_VALUES="0.05 0.10 0.15 0.20"`:
+- **PQR files:** 4 PDB × 3 pH = 12 PQR files + 12 logs
+- **APBS run directories:** 4 PDB × 3 pH × 4 ionc = 48 directories
+- **Total files:** 24 (PQR) + (48 × 21) = 1,032 files
+
+**Critical files for validation:**
+
+Per PDB file:
+- `OUTPUT/pqr/{protein}_pH{pH}.pqr` - Protonated structure
+
+Per run directory:
+- `TM.pqr` - Structure file (symlink should not be broken)
+- `pot_Lm.dx` - Coarse grid electrostatic potential (primary result)
+- `pot_Sm.dx` - Fine grid electrostatic potential (if using focused calculation)
+- `apbs_solv.out` - Solvation run log (contains energy values)
+
+**Success indicators in log files:**
+
+APBS logs (`apbs_solv.out`) should contain:
+```
+Global net ELEC energy = -X.XXXXXXE+XX kJ/mol
+```
+Absence of this line indicates calculation failure.
+
+**Manual validation commands:**
+
+```bash
+# Count PQR files (should equal: # PDB files × # pH values)
+find OUTPUT/pqr/ -name "*.pqr" | wc -l
+
+# Count run directories (should equal: # PDB files × # pH values × # ionc values)
+find OUTPUT/apbs_runs/ -mindepth 1 -maxdepth 1 -type d | wc -l
+
+# Check for critical output files
+find OUTPUT/apbs_runs/ -name "pot_Lm.dx" | wc -l
+
+# Check for successful APBS completions
+grep -r "Global net ELEC energy" OUTPUT/apbs_runs/*/apbs_solv.out | wc -l
+```
+
+**Disk space planning:**
+
+Estimate required disk space before running:
+```
+Space = (# PDB files) × (# pH values) × (# ionc values) × (size per run dir)
+
+Coarse grid:  4 × 3 × 4 × 25 MB  = ~1.2 GB
+Fine grid:    4 × 3 × 4 × 6 GB   = ~288 GB
+```
+
+**Typical file sizes (coarse grid: `DIME=65 65 65`):**
+- PQR files: 500 KB - 2 MB
+- Input files (`.in`): ~1-2 KB each
+- Coefficient maps (`.dx`): ~1-2 MB each
+- Potential maps (`.dx`): ~1-2 MB each
+- Log files (`.out`): 10-50 KB
+- **Per run directory:** ~20-30 MB
+
+**Fine grid sizes (`DIME=417 417 449`):**
+- Coefficient maps (`.dx`): ~300-400 MB each
+- Potential maps (`.dx`): ~300-400 MB each
+- **Per run directory:** ~5-7 GB
+
 ### Cleanup
 
 ```bash
@@ -265,34 +350,27 @@ just all
 # This generates 4 PQR files and 16 APBS run directories (4 pH × 4 ionc) for each PDB file.
 ```
 
-Check expected output structure in `EXPECTED_OUTPUT.md`.
+Check expected output structure in the "Output validation and file structure" section above.
 
 ## Troubleshooting
 
-**"Atom off the mesh" errors:**
-- Increase `DIME_L` and/or `DIME_S` (maintain valid dimensions)
-- Increase `GRID_L`/`GRID_S` spacing (lower resolution)
-- Adjust `GCENT` to center grid on protein
+See the main [README.md troubleshooting section](../../README.md#troubleshooting) for common issues and solutions.
 
-**PDB2PQR failures:**
-- Check PDB file for missing atoms: `grep "^ATOM" pdb/*.pdb | less`
-- Review `.log` files in `OUTPUT/pqr/`
-- Try standard CHARMM force field (remove `-u` flag from script call)
+**MSpA-specific issues:**
 
-**APBS crashes or silent failures:**
-- Check `apbs_*.out` files for error messages
-- Verify grid dimensions follow formula: `dime = c*2^(nlev+1) + 1`
-- Ensure APBS binary is compatible with your system (see `bin/README.md`)
+**Membrane parameters not appropriate:**
+- Adjust `ZMEM`, `LMEM`, `R_TOP`, `R_BOTTOM` in `params.env`
+- These values are protein-specific; MspA defaults may not work for other nanopores
 
-**Incomplete outputs:**
-```bash
-just validate      # Check what's missing
-```
+**Grid center misalignment:**
+- Verify `GCENT` centers grid on pore region
+- Use visualization software to check protein coordinates
+- MspA pore axis should align with Z-axis
 
-**Performance issues:**
-- Use coarse grid settings for testing
-- Reduce number of pH/ionc combinations
-- Consider running on HPC cluster for fine grids
+**Custom force field issues:**
+- Try running without custom force field (remove `--userff` flag from `run_pdb2pqr.sh`)
+- Check `pdb2pqr_forcefield/` files for errors
+- Review PDB2PQR log files for force field warnings
 
 ## Further reading
 

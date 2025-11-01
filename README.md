@@ -36,16 +36,16 @@ This will generate protonated structures (`.pqr` files) and electrostatic potent
 This toolkit requires three main dependencies:
 
 1. **`just` (command runner):** see [installation guide](https://github.com/casey/just?tab=readme-ov-file#installation)
-3. **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
-4. **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries)
-5. **`draw_membrane2` (membrane drawing utility):** see [`helix` example](https://github.com/Electrostatics/apbs/tree/main/examples/helix)
-   It should already be in the `bin/` directory, but can also be compiled from source:
+2. **`PDB2PQR` (structure protonation tool):** see [installation guide](https://pdb2pqr.readthedocs.io/en/latest/getting.html#python-package-installer-pip)
+3. **`APBS` (electrostatics solver):** see [installation guide](https://apbs.readthedocs.io/en/latest/getting/index.html#installing-from-pre-compiled-binaries) or [build from source](https://apbs.readthedocs.io/en/latest/getting/source.html)
+4. **`draw_membrane2` (membrane drawing utility):** Pre-compiled binary included in `bin/`, or compile from [APBS examples](https://github.com/Electrostatics/apbs/tree/main/examples/helix):
    ```bash
    cd bin/
-   # If not already compiled, get source from APBS examples
    wget https://raw.githubusercontent.com/Electrostatics/apbs/main/examples/helix/draw_membrane2.c
    gcc -O3 -o draw_membrane2 draw_membrane2.c -lm
    ```
+
+**Note on pre-compiled binaries:** The `bin/` directory contains convenience binaries (`apbs-intel`, `draw_membrane2`) for x86_64 systems. These may not work on ARM-based systems (Apple M1/M2, ARM servers). For best compatibility, [build APBS from source](https://apbs.readthedocs.io/en/latest/getting/source.html).
 
 ### Verification
 
@@ -114,7 +114,7 @@ OUTPUT/
         └── apbs_*.out                           # APBS output logs
 ```
 
-See `examples/apbs_mspa/EXPECTED_OUTPUT.md` for complete file listing.
+See `examples/apbs_mspa/README.md` for complete output structure and validation details.
 
 ### Cleaning up
 
@@ -127,10 +127,10 @@ just clean             # Remove all generated outputs
 ```
 nanopore-simulation-tools/
 ├── bin/                      # Pre-compiled binaries (convenience)
-│   ├── apbs-intel           # Intel-compiled APBS
+│   ├── apbs-intel           # Intel-compiled APBS for x86_64
 │   └── draw_membrane2       # Membrane modeling utility
 ├── scripts/
-│   └── electrostatics/      # Bash workflow scripts
+│   └── electrostatics/      # Electrostatics workflow automation
 │       ├── workflow_helpers.sh   # Shared helper functions
 │       ├── run_pdb2pqr.sh       # PQR generation script
 │       ├── run_apbs.sh          # APBS orchestration script
@@ -143,6 +143,19 @@ nanopore-simulation-tools/
         ├── pdb/             # Input PDB structures
         └── pdb2pqr_forcefield/  # Custom CHARMM force fields
 ```
+
+### Workflow scripts
+
+Scripts in `scripts/electrostatics/` automate the three-stage pipeline and are typically invoked via `just` recipes:
+
+```bash
+cd examples/apbs_mspa/
+just pqrs     # Calls scripts/electrostatics/run_pdb2pqr.sh
+just apbs     # Calls scripts/electrostatics/run_apbs.sh
+just validate # Calls scripts/electrostatics/validate_output.sh
+```
+
+Scripts can also be called directly with command-line arguments. See individual script help (`-h` flag) for usage information. All scripts source configuration from `params.env` files in example directories.
 
 ## Troubleshooting
 
@@ -197,6 +210,18 @@ And cite the underlying tools:
 - **APBS**: see [citing APBS](https://apbs.readthedocs.io/en/latest/supporting.html#citing-our-software)
 - **PDB2PQR**: see [citing PDB2PQR](https://pdb2pqr.readthedocs.io/en/latest/supporting.html#citing-our-software)
 
+## Contributors
+
+**Main contributors:**
+- Kherim Willems
+- Francesco Quilli
+- Mauro Chinappi
+
+**Other contributors:**
+- Marco Reccia
+- Blasco Morozzo della Rocca
+- Domenico Raimondo
+
 ## License
 
 This project is licensed under the BSD 3-Clause License - see the `LICENSE` file for details.
@@ -211,7 +236,10 @@ We welcome contributions! See `CONTRIBUTING.md` for guidelines on:
 
 ## Acknowledgments
 
-This toolkit was developed to support computational biophysics research on
-biological nanopores. It integrates and automates workflows using `APBS`,
-`PDB2PQR`, and the `draw_membrane2` utility from the `APBS` examples. It is a
-work in progress, so any feedback is appreciated!
+This project builds upon and integrates several open-source tools:
+
+- **APBS** and `draw_membrane2` utility: Electrostatics calculations, including membrane environment
+- **PDB2PQR**: Structure preparation and protonation state assignment
+- **just**: Workflow orchestration and task management
+
+It is a work in progress, so any feedback is appreciated!

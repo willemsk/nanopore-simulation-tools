@@ -45,7 +45,7 @@ Override parameters: `just pqrs PH_VALUES="7.0 7.4"` or `just inputs IONC_VALUES
 `params.env` uses simple `KEY=value` format (no exports, no shell functions):
 - Space-separated arrays: `IONC_VALUES="0.10 0.15"`
 - Template paths: `APBS_DUMMY_TEMPLATE=apbs_templates/apbs_dummy-TEMPLATE.in`
-- Grid settings must follow APBS constraints: `dime = 2*c^(nlev+1) + 1` for multigrid
+- Grid settings must follow APBS constraints: `dime = c × 2^(nlev+1) + 1` for multigrid
 
 Loaded by `justfile` via `set dotenv-load := true` and by bash scripts via `workflow_helpers.sh::get_config_value()`
 
@@ -174,7 +174,7 @@ Check APBS output logs (`.out` files) for:
 
 ### Common failure modes
 - **Grid too small**: "Atom #X at (x, y, z) is off the mesh" - Increase `GRID_L`/`GRID_S` or adjust `GCENT`
-- **Invalid dimensions**: Silent failure or segfault - Verify `DIME_*` follows formula: `dime = 2*c^(nlev+1) + 1`
+- **Invalid dimensions**: Silent failure or segfault - Verify `DIME_*` follows formula: `dime = c × 2^(nlev+1) + 1`
 - **Missing files**: Check `check_pdb_files()`, `check_pqr_files()`, `check_apbs_dirs()` validation functions
 - **PDB2PQR errors**: Review `.log` files in PQR output directory for protonation issues
 
